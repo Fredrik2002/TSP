@@ -30,7 +30,7 @@ class Noeud{
         int evaluation; // Poids de l'ACPM
         int N; // Nombre de sommets
 
-    Noeud(vector<Arete> ar, vector<Arete> s, int NB_SOMMETS){
+    Noeud(vector<Arete> &ar, vector<Arete> &s, int NB_SOMMETS){
         aretes=ar;
         solution=s;
         solution_realisable=false;
@@ -162,7 +162,7 @@ Noeud selection_noeud(vector<Noeud> &liste){ // Strategie de parcours, voir fonc
     return n;
 }
 
-vector<Arete> retire_arete(vector<Arete> aretes, Arete a){//Passage par copie
+vector<Arete> retire_arete(vector<Arete> aretes, Arete a){//Passage par copie OBLIGATOIRE
     for(int i=0;i<aretes.size();i++){
         Arete a1 = aretes.at(i);
         if(a1.sommet1==a.sommet1 && a1.sommet2==a.sommet2){
@@ -197,8 +197,9 @@ vector<Arete> algorithme1(int N, vector<Arete> &aretes){
         else if(n.evaluation<borne_sup){
             vector<Arete> branchement = sommet_a_separer(N, n);
             for(Arete a : branchement){
-                vector<Arete> v;
-                Noeud n_fils(retire_arete(n.aretes, a), v, N);
+                vector<Arete> new_aretes = retire_arete(n.aretes, a);
+                vector<Arete> sol = calcule_solution(N, x0, new_aretes);
+                Noeud n_fils(new_aretes, sol, N);
                 n_fils.solution = calcule_solution(N, x0, n_fils.aretes);
                 n_fils.evalue();
                 if(n_fils.solution.size()!=0) liste_noeuds.push_back(n_fils); // Pas assez d'arêtes
