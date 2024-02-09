@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include "algo1.h"
 using namespace std;
 
 double distance_de_manhattan(int xi, int xj, int yi, int yj){
@@ -14,7 +15,7 @@ double distance_euclidienne(int xi, int xj, int yi, int yj){
     return sqrt(pow((xi-xj), 2)+pow((yi-yj), 2));
 }
 
-void genere_instances(int N, int x_max, int y_max, 
+vector<Arete> genere_instances(int N, int x_max, int y_max, 
 double (*distance)(int xi, int xj, int yi, int yj)){ 
     /*
     Entrée :
@@ -28,8 +29,10 @@ double (*distance)(int xi, int xj, int yi, int yj)){
     int* X = new int[N];
     int* Y = new int[N];
     for(int i=0;i<N;i++){
+        
         X[i] = rand()%x_max;
         Y[i] = rand()%y_max;
+        cout << X[i] << Y[i] << endl;
     }
     vector<Arete> aretes;
     for(int i=0;i<N;i++){
@@ -44,4 +47,8 @@ double (*distance)(int xi, int xj, int yi, int yj)){
 
 int main(){
     srand(time(NULL));
+    vector<Arete> aretes  = genere_instances(6, 100, 100, distance_de_manhattan);
+    for(Arete a : aretes){
+        a.afficher();
+    }
 }
