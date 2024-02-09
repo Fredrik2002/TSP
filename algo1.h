@@ -9,7 +9,8 @@ using namespace std;
 
 class Arete{
     public:
-    int sommet1, sommet2, poids;
+    int sommet1, sommet2;
+    double poids;
     Arete(int s1, int s2, double p){
         sommet1 = s1;
         sommet2 = s2;
@@ -160,6 +161,7 @@ vector<Arete> retire_arete(vector<Arete> aretes, Arete a){//Passage par copie OB
 
 vector<Arete> algorithme1(int N, vector<Arete> &aretes){
     int x0 = 0;
+    int nb_noeuds_explores = 0;
     vector<Arete> best_sol; 
     vector<Arete> solution = calcule_solution(N, x0, aretes);
     vector<Noeud> liste_noeuds;
@@ -170,12 +172,14 @@ vector<Arete> algorithme1(int N, vector<Arete> &aretes){
     liste_noeuds.push_back(n);
     while(liste_noeuds.size()>0){
         n = selection_noeud(liste_noeuds);
+        nb_noeuds_explores++;
         if(n.solution_realisable){//Solution réalisable
             if(n.evaluation<borne_sup){
                 borne_sup=n.evaluation;
                 best_sol=n.solution;
             }
             if(n.evaluation==borne_inf){
+                cout << nb_noeuds_explores <<endl;
                 return best_sol;
             }
         }

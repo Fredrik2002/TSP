@@ -16,7 +16,7 @@ double distance_euclidienne(int xi, int xj, int yi, int yj){
 }
 
 vector<Arete> genere_instances(int N, int x_max, int y_max, 
-double (*distance)(int xi, int xj, int yi, int yj)){ 
+double (*distance)(int, int, int, int )){ 
     /*
     Entrée :
         - N : nombres de sommets
@@ -32,22 +32,30 @@ double (*distance)(int xi, int xj, int yi, int yj)){
         
         X[i] = rand()%x_max;
         Y[i] = rand()%y_max;
-        cout << X[i] << Y[i] << endl;
+        cout << X[i] << " " <<Y[i] << endl;
     }
     vector<Arete> aretes;
     for(int i=0;i<N;i++){
-        for(int j=0;j<N;j++){
+        for(int j=i+1;j<N;j++){
             Arete a(i, j, distance(X[i], X[j], Y[i], Y[j]));
             aretes.push_back(a);
         }
     }
     return aretes;
+}
+
+void benchmark(vector<tuple<vector<Arete>, int>> liste_fonction){
 
 }
 
 int main(){
     srand(time(NULL));
-    vector<Arete> aretes  = genere_instances(6, 100, 100, distance_de_manhattan);
+    /*Les fonctions vont renvoyer des tuples :
+        - La liste des arêtes de la solution
+        - Le nombre de noeuds explorés
+*/
+    vector<tuple<vector<Arete>, int>> liste_fonction;
+    vector<Arete> aretes  = genere_instances(25, 10000, 10000, distance_de_manhattan);
     for(Arete a : aretes){
         a.afficher();
     }
