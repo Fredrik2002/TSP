@@ -2,6 +2,8 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <ctime>
+#include <tuple>
 #include "algo1.h"
 using namespace std;
 
@@ -16,7 +18,7 @@ double distance_euclidienne(int xi, int xj, int yi, int yj){
 }
 
 vector<Arete> genere_instances(int N, int x_max, int y_max, 
-double (*distance)(int, int, int, int )){ 
+double (*distance)(int, int, int, int)){ 
     /*
     Entrée :
         - N : nombres de sommets
@@ -32,7 +34,6 @@ double (*distance)(int, int, int, int )){
         
         X[i] = rand()%x_max;
         Y[i] = rand()%y_max;
-        cout << X[i] << " " <<Y[i] << endl;
     }
     vector<Arete> aretes;
     for(int i=0;i<N;i++){
@@ -41,6 +42,7 @@ double (*distance)(int, int, int, int )){
             aretes.push_back(a);
         }
     }
+    sort(aretes.begin(), aretes.end());
     return aretes;
 }
 
@@ -54,9 +56,16 @@ int main(){
         - La liste des arêtes de la solution
         - Le nombre de noeuds explorés
 */
+    int N = 10;
     vector<tuple<vector<Arete>, int>> liste_fonction;
-    vector<Arete> aretes  = genere_instances(25, 10000, 10000, distance_de_manhattan);
+    vector<Arete> aretes  = genere_instances(N, 100, 100, distance_de_manhattan);
+    
     for(Arete a : aretes){
         a.afficher();
     }
+    
+    cout << endl;
+    vector<Arete> solution = algorithme1(N, aretes);
+    cout << "Affiche solution"  << endl;
+    affiche_liste(solution);
 }
