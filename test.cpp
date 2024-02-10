@@ -58,7 +58,9 @@ int main(){
 */
     int N = 10;
     vector<tuple<vector<Arete>, int>> liste_fonction;
-    vector<Arete> aretes  = genere_instances(N, 100, 100, distance_de_manhattan);
+
+    vector<Arete>* aretes = new vector<Arete>();
+    *aretes = genere_instances(N, 100, 100, distance_de_manhattan);
     
     for(Arete a : aretes){
         a.afficher();
