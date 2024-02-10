@@ -57,11 +57,11 @@ int main(){
         - La liste des arêtes de la solution
         - Le nombre de noeuds explorés
 */
-    int N = 12;
+    int N = 14;
     vector<tuple<vector<Arete>, int>> liste_fonction;
 
     vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
-
+    
 
     for(Arete *a : aretes){
         a->afficher();

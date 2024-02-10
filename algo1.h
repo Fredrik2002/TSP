@@ -65,6 +65,8 @@ class Noeud{
         
     }
 
+    
+
     long double hash(){
         long double resultat = 0;
         for(Arete* ar : aretes_interdites){
@@ -228,6 +230,11 @@ vector<Arete*> retire_arete(vector<Arete*> aretes, Arete &a){//Passage par copie
     return aretes;
 }
 
+void insertion_dichotomique(vector<Noeud> &liste, Noeud &n){
+    auto it = lower_bound(liste.begin(), liste.end(), n);
+    liste.insert(it, n);
+}
+
 vector<Arete*>* algorithme1(int N, vector<Arete*> &aretes){
     int x0 = 0;
     int nb_noeuds_explores = 0;
@@ -267,7 +274,7 @@ vector<Arete*>* algorithme1(int N, vector<Arete*> &aretes){
                 n_fils.aretes_interdites.push_back(a);
                 n_fils.evalue();
                 if(n_fils.solution.size()!=0 && set.find(n_fils.hashcode)==set.end()){
-                    liste_noeuds.push_back(n_fils);
+                    insertion_dichotomique(liste_noeuds,n_fils);
                     set.insert(n_fils.hashcode);
                 }
             }
