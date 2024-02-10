@@ -17,7 +17,7 @@ double distance_euclidienne(int xi, int xj, int yi, int yj){
     return sqrt(pow((xi-xj), 2)+pow((yi-yj), 2));
 }
 
-vector<Arete> genere_instances(int N, int x_max, int y_max, 
+vector<Arete*> genere_instances(int N, int x_max, int y_max, 
 double (*distance)(int, int, int, int)){ 
     /*
     Entrée :
@@ -35,14 +35,14 @@ double (*distance)(int, int, int, int)){
         X[i] = rand()%x_max;
         Y[i] = rand()%y_max;
     }
-    vector<Arete> aretes;
+    vector<Arete*> aretes;
     for(int i=0;i<N;i++){
         for(int j=i+1;j<N;j++){
-            Arete a(i, j, distance(X[i], X[j], Y[i], Y[j]));
+            Arete* a = new Arete(i, j, distance(X[i], X[j], Y[i], Y[j]));
             aretes.push_back(a);
         }
     }
-    sort(aretes.begin(), aretes.end());
+    sort(aretes.begin(), aretes.end(), comparateur_pointeur);
     return aretes;
 }
 
@@ -56,18 +56,18 @@ int main(){
         - La liste des arêtes de la solution
         - Le nombre de noeuds explorés
 */
-    int N = 10;
+    int N = 4;
     vector<tuple<vector<Arete>, int>> liste_fonction;
 
-    vector<Arete>* aretes = new vector<Arete>();
-    *aretes = genere_instances(N, 100, 100, distance_de_manhattan);
+    vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
     
-    for(Arete a : aretes){
-        a.afficher();
+    for(Arete *a : aretes){
+        a->afficher();
     }
 
     cout << endl;
-    vector<Arete> solution = algorithme1(N, aretes);
-    cout << "Affiche solution"  << endl;
-    affiche_liste(solution);
+    vector<Arete*>* solution = new vector<Arete*>();
+    solution = algorithme1(N, aretes);
+    cout << "Affiche solution"  << solution->size() <<endl;
+    affiche_liste(*solution);
 }
