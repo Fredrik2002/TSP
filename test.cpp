@@ -5,6 +5,7 @@
 #include <ctime>
 #include <tuple>
 #include "algo1.h"
+#include <bits/stdc++.h>
 using namespace std;
 
 double distance_de_manhattan(int xi, int xj, int yi, int yj){
@@ -56,18 +57,17 @@ int main(){
         - La liste des arêtes de la solution
         - Le nombre de noeuds explorés
 */
-    int N = 4;
+    int N = 12;
     vector<tuple<vector<Arete>, int>> liste_fonction;
 
     vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
-    
+
+
     for(Arete *a : aretes){
         a->afficher();
     }
 
-    cout << endl;
     vector<Arete*>* solution = new vector<Arete*>();
     solution = algorithme1(N, aretes);
-    cout << "Affiche solution"  << solution->size() <<endl;
     affiche_liste(*solution);
 }

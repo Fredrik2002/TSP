@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cmath>
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -13,6 +15,8 @@ int trouver_racine(int sommet, int* parent){
     if(parent[sommet]==sommet) return sommet;
     return trouver_racine(parent[sommet], parent);
 }
+
+
 
 class Arete{
     public:
@@ -25,11 +29,18 @@ class Arete{
     }
 
     void afficher(){
-        cout << sommet1 << "-" << sommet2 << ", Poids: " << poids <<endl;
+        cout << sommet1 << "-" << sommet2 << ", Poids: " << poids << endl;
     }
 
     bool operator<(const Arete &autre){
         return poids<autre.poids;
+    }
+
+    int hash(int N){
+        int a = sommet1;
+        int b = sommet2;
+        int e = -a*(a+3)/2+a*N+b-1;
+        return e;
     }
 };
 
@@ -37,22 +48,32 @@ class Noeud{
     public:
         vector<Arete*> aretes; // Listes des arêtes disponibles
         vector<Arete*> solution; // ACPM
+        vector<Arete*> aretes_interdites;
         int* degres; // Tableau des degrés de chaque sommets
         bool solution_realisable;
         int evaluation; // Poids de l'ACPM
         int N; // Nombre de sommets
+        long double hashcode;
 
-    Noeud(vector<Arete*> &ar, vector<Arete*> &s, int NB_SOMMETS){
+    Noeud(vector<Arete*> &ar, vector<Arete*> &s, int NB_SOMMETS, vector<Arete*> aretes_inter){//Passer les arêtes interdites par copie également
         aretes=ar;
         solution=s;
         solution_realisable=false;
         N = NB_SOMMETS;
         degres = new int[N]();
+        aretes_interdites = aretes_inter;
         
     }
 
-    ~Noeud(){
-        delete[] degres;
+    long double hash(){
+        long double resultat = 0;
+        for(Arete* ar : aretes_interdites){
+            int a = ar->sommet1;
+            int b = ar-> sommet2;
+            int e = -a*(a+3)/2+a*N+b;
+            resultat += pow(2, e);
+        }
+        return resultat;
     }
 
     void afficher(){
@@ -72,6 +93,7 @@ class Noeud{
     }
 
     void evalue() {
+        hashcode = hash();
         for(Arete* a : solution){
             degres[a->sommet1]+=1;
             degres[a->sommet2]+=1;
@@ -124,7 +146,7 @@ void affiche_liste(vector<Arete*> &liste){
     }
 }
 
-bool comparateur_pointeur(Arete* a, Arete* b){
+bool comparateur_pointeur(const Arete* a, const Arete* b){
     return a->poids < b-> poids;
 }
 
@@ -167,8 +189,10 @@ vector<Arete*> calcule_solution(int N, int x0, vector<Arete*> &aretes){//Kruskal
     }
     if(aretes_retirees.size()>=2){
         solution = kruskal(N, aretes, x0);
-        solution.push_back(aretes_retirees.at(0));
-        solution.push_back(aretes_retirees.at(1));
+        if(solution.size()!=0){
+            solution.push_back(aretes_retirees.at(0));
+            solution.push_back(aretes_retirees.at(1));
+        }
     }
     return solution;
 }
@@ -178,14 +202,11 @@ vector<Arete*> sommet_a_separer(int N, Noeud &n){//Renvoie les arêtes à retire
     // STRATEGIE DE SEPARATION : A ETUDIER (On prend le sommet de plus haut degré pour l'instant)
     
     int sommet = max_element(n.degres, n.degres+N)-&(n.degres[0]);
-    cout << "Sommet " << sommet ;
     vector<Arete*> aretes_a_brancher;
     for(int i=0;i<n.solution.size();i++){
         Arete* a = n.solution.at(i);
         if (a->sommet1==sommet || a->sommet2 == sommet) aretes_a_brancher.push_back(n.solution.at(i));
     }
-    cout << "Liste branchement" << endl;
-    affiche_liste(aretes_a_brancher);;
     return aretes_a_brancher;
 }
 
@@ -210,19 +231,19 @@ vector<Arete*> retire_arete(vector<Arete*> aretes, Arete &a){//Passage par copie
 vector<Arete*>* algorithme1(int N, vector<Arete*> &aretes){
     int x0 = 0;
     int nb_noeuds_explores = 0;
-    vector<Arete*> best_sol; 
+    unordered_set<long double> set;
+    vector<Arete*> best_sol, aretes_interdites; 
     vector<Arete*> solution = calcule_solution(N, x0, aretes);
     vector<Noeud> liste_noeuds;
-    Noeud n(aretes, solution, N);
+    Noeud n(aretes, solution, N, aretes_interdites);
     n.evalue();
     int borne_inf = n.evaluation;
     int borne_sup = 21156135;
     liste_noeuds.push_back(n);
+
     while(liste_noeuds.size()>0){
-        cout << "Nb noeuds" << nb_noeuds_explores <<endl;
         n = selection_noeud(liste_noeuds);
-        n.afficher();
-        cout << "Fin de l'affichage du noeud" << endl;
+        
         nb_noeuds_explores++;
         if(n.solution_realisable){//Solution réalisable
         
@@ -242,13 +263,17 @@ vector<Arete*>* algorithme1(int N, vector<Arete*> &aretes){
             for(Arete* a : branchement){
                 vector<Arete*> new_aretes = retire_arete(n.aretes, *a);
                 vector<Arete*> sol = calcule_solution(N, x0, new_aretes);
-                Noeud n_fils(new_aretes, sol, N);
+                Noeud n_fils(new_aretes, sol, N, n.aretes_interdites);
+                n_fils.aretes_interdites.push_back(a);
                 n_fils.evalue();
-                if(n_fils.solution.size()!=0) liste_noeuds.push_back(n_fils); // Pas assez d'arêtes
+                if(n_fils.solution.size()!=0 && set.find(n_fils.hashcode)==set.end()){
+                    liste_noeuds.push_back(n_fils);
+                    set.insert(n_fils.hashcode);
+                }
             }
         }
     }
-    cout << "Nb noeuds" << nb_noeuds_explores <<endl;
+    cout << "Nb noeuds " << nb_noeuds_explores <<endl;
     return copie_solution_dans_le_tas(best_sol);
 }
 
