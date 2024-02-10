@@ -63,7 +63,7 @@ int main(){
     for(Arete a : aretes){
         a.afficher();
     }
-    
+
     cout << endl;
     vector<Arete> solution = algorithme1(N, aretes);
     cout << "Affiche solution"  << endl;
