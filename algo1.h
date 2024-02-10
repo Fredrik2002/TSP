@@ -7,6 +7,13 @@
 
 using namespace std;
 
+
+
+int trouver_racine(int sommet, int* parent){
+    if(parent[sommet]==sommet) return sommet;
+    return trouver_racine(parent[sommet], parent);
+}
+
 class Arete{
     public:
     int sommet1, sommet2;
@@ -68,18 +75,35 @@ class Noeud{
             degres[a.sommet1]+=1;
             degres[a.sommet2]+=1;
         }
-        int sommet = max_element(degres, degres+N)-&degres[0];
+        int sommet_max = max_element(degres, degres+N)-&degres[0];
+        int sommet_min = min_element(degres, degres+N)-&degres[0];
         int somme = 0;
         for(Arete a : solution){
             somme+=a.poids;
         }
         evaluation = somme;
-        solution_realisable=true;
-        for(int i=0;i<N;i++){
-            if(degres[i]!=2){
-                solution_realisable = false;
-                break;
-            } 
+        if(degres[sommet_max]==2 && degres[sommet_min]==2){ // On est sur d'avoir une union de cycle
+            solution_realisable=true;
+            vector<Arete> copie_solution = solution;
+            int sommet_de_depart = copie_solution.at(0).sommet1;
+            int sommet_actuel = copie_solution.at(0).sommet2;
+            copie_solution.erase(copie_solution.begin());
+            while(sommet_de_depart!=sommet_actuel){
+                for(int i=0;i<copie_solution.size();i++){
+                    Arete a = copie_solution.at(i);
+                    if(a.sommet1==sommet_actuel){
+                        sommet_actuel = a.sommet2;
+                        copie_solution.erase(copie_solution.begin()+i);
+                        break;
+                    }
+                    if(a.sommet2==sommet_actuel){
+                        sommet_actuel = a.sommet1;
+                        copie_solution.erase(copie_solution.begin()+i);
+                        break;
+                    }
+                }
+            }
+            solution_realisable = copie_solution.size()==0;
         }
         
     }
@@ -91,15 +115,10 @@ void affiche_liste(vector<Arete> &liste){
     }
 }
 
-int trouver_racine(int sommet, int* parent){
-    if(parent[sommet]==sommet) return sommet;
-    return trouver_racine(parent[sommet], parent);
-}
-
 vector<Arete> kruskal(int N, vector<Arete> &aretes, int x0){//Prend en paramètre la liste TRIEE des arêtes
-    int* parent = new int[N+2];
+    int* parent = new int[N+1];
     vector<Arete> resultat, solution_vide;
-    for(int i=0;i<N+2;i++){
+    for(int i=0;i<N+1;i++){
         parent[i] = i;
     }
     for(int i=0;i<aretes.size();i++){
@@ -156,7 +175,7 @@ vector<Arete> sommet_a_separer(int N, Noeud &n){//Renvoie les arêtes à retirer
 }
 
 Noeud selection_noeud(vector<Noeud> &liste){ // Strategie de parcours, voir fonction de tri des noeuds
-    sort(liste.begin(), liste.end());
+    //sort(liste.begin(), liste.end());
     Noeud n = liste.at(0);
     liste.erase(liste.begin());
     return n;
