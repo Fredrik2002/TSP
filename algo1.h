@@ -16,6 +16,10 @@ int trouver_racine(int sommet, int* parent){
     return trouver_racine(parent[sommet], parent);
 }
 
+int fonction_de_hachage(int a, int b, int N){
+    return -a*(a+3)/2+a*N+b-1;
+}
+
 
 
 class Arete{
@@ -37,10 +41,7 @@ class Arete{
     }
 
     int hash(int N){
-        int a = sommet1;
-        int b = sommet2;
-        int e = -a*(a+3)/2+a*N+b-1;
-        return e;
+        return fonction_de_hachage(sommet1, sommet2, N);
     }
 };
 
@@ -68,9 +69,7 @@ class Noeud{
     long double hash(){
         long double resultat = 0;
         for(Arete* ar : aretes_interdites){
-            int a = ar->sommet1;
-            int b = ar-> sommet2;
-            int e = -a*(a+3)/2+a*N+b;
+            int e = fonction_de_hachage(ar->sommet1, ar->sommet2, N);
             resultat += pow(2, e);
         }
         return resultat;
@@ -163,7 +162,7 @@ vector<Arete*> kruskal(int N, vector<Arete*> &aretes, int x0){//Prend en paramè
         int r2 = trouver_racine(a->sommet2, parent);
 
         if (r1!=r2 && a->sommet1!=x0 && a->sommet2!=x0){ // On peut prendre l'arête
-            parent[a->sommet2] = a->sommet1; // Lie les composantes connexes
+            parent[r2] = r1; // Lie les composantes connexes
             resultat.push_back(aretes.at(i));
         }
         if(resultat.size()==N-2) break;
@@ -173,7 +172,6 @@ vector<Arete*> kruskal(int N, vector<Arete*> &aretes, int x0){//Prend en paramè
         return resultat;
     }
     else return solution_vide;
-
 }
 
 vector<Arete*> calcule_solution(int N, int x0, vector<Arete*> &aretes){//Kruskal a interdiction de prendre les arêtes de x0, pas la peine de retirer les arêtes donc -> Passage par référence
@@ -255,7 +253,6 @@ vector<Arete*>* algorithme1(int N, vector<Arete*> &aretes){
             if(n.evaluation<borne_sup){
                 borne_sup=n.evaluation;
                 best_sol=n.solution;
-                cout << "Nouvelle meilleure solution" << endl;
             }
             if(n.evaluation==borne_inf){
                 affiche_liste(best_sol);
