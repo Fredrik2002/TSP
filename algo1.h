@@ -65,8 +65,6 @@ class Noeud{
         
     }
 
-    
-
     long double hash(){
         long double resultat = 0;
         for(Arete* ar : aretes_interdites){
@@ -257,10 +255,9 @@ vector<Arete*>* algorithme1(int N, vector<Arete*> &aretes){
             if(n.evaluation<borne_sup){
                 borne_sup=n.evaluation;
                 best_sol=n.solution;
-                cout << "Hello 1" << endl;
+                cout << "Nouvelle meilleure solution" << endl;
             }
             if(n.evaluation==borne_inf){
-                cout << "Hello 2" << endl;
                 affiche_liste(best_sol);
                 return copie_solution_dans_le_tas(best_sol);
             }

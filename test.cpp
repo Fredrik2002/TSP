@@ -5,6 +5,7 @@
 #include <ctime>
 #include <tuple>
 #include "algo1.h"
+#include "glouton.h"
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -57,7 +58,7 @@ int main(){
         - La liste des arêtes de la solution
         - Le nombre de noeuds explorés
 */
-    int N = 14;
+    int N = 13;
     vector<tuple<vector<Arete>, int>> liste_fonction;
 
     vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
@@ -68,6 +69,15 @@ int main(){
     }
 
     vector<Arete*>* solution = new vector<Arete*>();
+    solution = glouton1(N, aretes, 0);
+    cout << "Glouton 1" << endl;
+    affiche_liste(*solution);
+
+    solution = glouton2(N, aretes);
+    cout << "Glouton 2" << endl;
+    affiche_liste(*solution);
+
     solution = algorithme1(N, aretes);
+    cout << "Algo 1" << endl;
     affiche_liste(*solution);
 }
