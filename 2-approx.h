@@ -12,7 +12,6 @@ using namespace std;
 vector<Arete*>* deux_approx(int N, vector<Arete*> &aretes){
     vector<Arete*> * solution = new vector<Arete*>();
     vector<Arete*> ACPM = kruskal(N+1, aretes, -1);
-    affiche_liste(ACPM);
     for(Arete* a : ACPM){
         solution->push_back(a);
         solution->push_back(a);

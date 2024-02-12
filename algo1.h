@@ -104,6 +104,7 @@ class Noeud{
             somme+=(*a).poids;
         }
         evaluation = somme;
+
         if(degres[sommet_max]==2 && degres[sommet_min]==2){ // On est sur d'avoir une union de cycle
             solution_realisable=true;
             vector<Arete*> copie_solution = solution;
@@ -198,6 +199,13 @@ vector<Arete*> calcule_solution(int N, int x0, vector<Arete*> &aretes){//Kruskal
 vector<Arete*> sommet_a_separer(int N, Noeud &n){//Renvoie les arêtes à retirer 
     //(Les arêtes ont toutes un sommet en commun)
     // STRATEGIE DE SEPARATION : A ETUDIER (On prend le sommet de plus haut degré pour l'instant)
+    /*int sommet = N+1;
+    for(int i=0;i<N;i++){
+        if(n.degres[i]>2 && (sommet==N+1 || n.degres[i]<n.degres[sommet])){
+            sommet = i;
+            if (n.degres[i]==3) break;
+        }
+    }*/
     
     int sommet = max_element(n.degres, n.degres+N)-&(n.degres[0]);
     vector<Arete*> aretes_a_brancher;
@@ -246,9 +254,15 @@ vector<Arete*>* algorithme1(int N, vector<Arete*> &aretes){
 
     while(liste_noeuds.size()>0){
         n = selection_noeud(liste_noeuds);
+        cout << nb_noeuds_explores <<" : " << n.evaluation << endl;
+        affiche_liste(n.solution);
+        cout << "Aretes interdites" <<endl;
+        affiche_liste(n.aretes_interdites);
+        cout << endl << endl;
         
         nb_noeuds_explores++;
         if(n.solution_realisable){//Solution réalisable
+            cout << "Solution réalisable" << endl;
         
             if(n.evaluation<borne_sup){
                 borne_sup=n.evaluation;

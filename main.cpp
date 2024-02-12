@@ -60,7 +60,7 @@ int main(){
         - La liste des arêtes de la solution
         - Le nombre de noeuds explorés
 */
-    int N = 10;
+    int N = 5;
     vector<tuple<vector<Arete>, int>> liste_fonction;
 
     vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
@@ -72,19 +72,19 @@ int main(){
 
     vector<Arete*>* solution = new vector<Arete*>();
     solution = glouton1(N, aretes, 0);
-    cout <<endl << "Glouton 1 :" << valeur_solution(*solution);
+    cout << "Glouton 1 :" << valeur_solution(*solution)<<endl;
 
     solution = glouton2(N, aretes);
-    cout <<endl << "Glouton 2 :" << valeur_solution(*solution);
+    cout << "Glouton 2 :" << valeur_solution(*solution)<<endl;
 
     solution = deux_approx(N, aretes);
-    cout <<endl << "2-approx :" << valeur_solution(*solution);
+    cout << "2-approx :" << valeur_solution(*solution)<<endl;
 
     solution = backtracking(N, aretes);
-    cout <<endl << "Backtracking :" << valeur_solution(*solution);
+    cout << "Backtracking :" << valeur_solution(*solution)<<endl;
 
     solution = algorithme1(N, aretes);
-    cout <<endl << "Algo 1 :" << valeur_solution(*solution);
+    cout << "Algo 1 :" << valeur_solution(*solution)<<endl;
 
     
 }

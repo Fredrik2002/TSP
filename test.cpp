@@ -31,7 +31,7 @@ int main(){
     for(Arete *a : aretes){
         a->afficher();
     }
-    int N = 10;
+    int N = 5;
     vector<Arete*>* solution = new vector<Arete*>();
     solution = glouton1(N, aretes, 0);
     affiche_liste(*solution);
