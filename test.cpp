@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cmath>
 #include <bits/stdc++.h>
 #include "algo1.h"
 #include "glouton.h"
@@ -31,7 +32,10 @@ int main(){
     for(Arete *a : aretes){
         a->afficher();
     }
-    int N = 5;
+    int N = 14;
+
+
+
     vector<Arete*>* solution = new vector<Arete*>();
     solution = glouton1(N, aretes, 0);
     affiche_liste(*solution);
@@ -48,6 +52,7 @@ int main(){
     solution = backtracking(N, aretes);
     affiche_liste(*solution);
     cout <<endl << "Backtracking :" << valeur_solution(*solution);
+    affiche_liste(*solution);
 
     solution = algorithme1(N, aretes);
     cout <<endl << "Algo 1 :" << valeur_solution(*solution);

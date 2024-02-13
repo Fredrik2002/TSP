@@ -6,10 +6,9 @@
 #include <algorithm>
 #include <cmath>
 #include <bits/stdc++.h>
+#include <string>
 
 using namespace std;
-
-
 
 int trouver_racine(int sommet, int* parent){
     if(parent[sommet]==sommet) return sommet;
@@ -45,6 +44,12 @@ class Arete{
     }
 };
 
+void affiche_liste(vector<Arete*> &liste){
+    for(Arete* a : liste){
+        a->afficher();
+    }
+}
+
 class Noeud{
     public:
         vector<Arete*> aretes; // Listes des arêtes disponibles
@@ -54,7 +59,8 @@ class Noeud{
         bool solution_realisable;
         int evaluation; // Poids de l'ACPM
         int N; // Nombre de sommets
-        long double hashcode;
+        string hashcode;
+        int id;
 
     Noeud(vector<Arete*> &ar, vector<Arete*> &s, int NB_SOMMETS, vector<Arete*> aretes_inter){//Passer les arêtes interdites par copie également
         aretes=ar;
@@ -63,32 +69,31 @@ class Noeud{
         N = NB_SOMMETS;
         degres = new int[N]();
         aretes_interdites = aretes_inter;
+        id =0;
         
     }
 
-    long double hash(){
-        long double resultat = 0;
+    string hash(){
+        string hashcode(N*(N-1)/2, '0');
         for(Arete* ar : aretes_interdites){
             int e = fonction_de_hachage(ar->sommet1, ar->sommet2, N);
-            resultat += pow(2, e);
+            hashcode[e] = '1';
         }
-        return resultat;
+        return hashcode;
     }
 
     void afficher(){
-        for(Arete* a : solution){
-            (*a).afficher();
-        }
+        cout << "Evaluation du noeud :" << evaluation <<endl;
+        cout << "Solution réalisable :"<<solution_realisable<<endl;
+        affiche_liste(solution);
+        cout << "Aretes interdites:" <<endl;
+        affiche_liste(aretes_interdites);
+        cout << endl << endl;
     }
 
-    bool operator<(const Noeud &autre){//On prend en priorité la solution réalisable
-        //return evalue()<autre.evalue();
-        if(solution_realisable!=autre.solution_realisable){
-            return solution_realisable;
-        }
-        else{
-            return evaluation<autre.evaluation;
-        }
+    bool operator<(const Noeud &autre){
+        return evaluation<autre.evaluation;
+        
     }
 
     void evalue() {
@@ -104,7 +109,6 @@ class Noeud{
             somme+=(*a).poids;
         }
         evaluation = somme;
-
         if(degres[sommet_max]==2 && degres[sommet_min]==2){ // On est sur d'avoir une union de cycle
             solution_realisable=true;
             vector<Arete*> copie_solution = solution;
@@ -138,12 +142,6 @@ vector<Arete*>* copie_solution_dans_le_tas(vector<Arete*> &liste){
         s->push_back(a);
     }
     return s;
-}
-
-void affiche_liste(vector<Arete*> &liste){
-    for(Arete* a : liste){
-        a->afficher();
-    }
 }
 
 bool comparateur_pointeur(const Arete* a, const Arete* b){
@@ -240,56 +238,70 @@ void insertion_dichotomique(vector<Noeud> &liste, Noeud &n){
 }
 
 vector<Arete*>* algorithme1(int N, vector<Arete*> &aretes){
+
+    vector<Arete*> solutn;
+    solutn.push_back(new Arete(0,4,17));
+    solutn.push_back(new Arete(4,6,15));
+    solutn.push_back(new Arete(6,7,49));
+    solutn.push_back(new Arete(3,7,30));
+    solutn.push_back(new Arete(3,5,25));
+    solutn.push_back(new Arete(1,5,25));
+    solutn.push_back(new Arete(1,11,12));
+    solutn.push_back(new Arete(2,11,23));
+    solutn.push_back(new Arete(2,9,3));
+    solutn.push_back(new Arete(9,13,60));
+    solutn.push_back(new Arete(10,13,13));
+    solutn.push_back(new Arete(8,10,33));
+    solutn.push_back(new Arete(8,12,23));
+    solutn.push_back(new Arete(0,12,8));
+    unordered_set<int> hashage;
+    for(Arete* a : solutn){
+        hashage.insert(a->hash(N));
+    }
+
+
     int x0 = 0;
     int nb_noeuds_explores = 0;
-    unordered_set<long double> set;
+    unordered_set<string> set;
     vector<Arete*> best_sol, aretes_interdites; 
     vector<Arete*> solution = calcule_solution(N, x0, aretes);
     vector<Noeud> liste_noeuds;
     Noeud n(aretes, solution, N, aretes_interdites);
     n.evalue();
-    int borne_inf = n.evaluation;
     int borne_sup = 21156135;
     liste_noeuds.push_back(n);
 
     while(liste_noeuds.size()>0){
         n = selection_noeud(liste_noeuds);
-        cout << nb_noeuds_explores <<" : " << n.evaluation << endl;
-        affiche_liste(n.solution);
-        cout << "Aretes interdites" <<endl;
-        affiche_liste(n.aretes_interdites);
-        cout << endl << endl;
-        
         nb_noeuds_explores++;
         if(n.solution_realisable){//Solution réalisable
-            cout << "Solution réalisable" << endl;
+            cout << "Nb noeuds " << nb_noeuds_explores <<endl;
+            return copie_solution_dans_le_tas(n.solution);
+            
+        }
         
-            if(n.evaluation<borne_sup){
-                borne_sup=n.evaluation;
-                best_sol=n.solution;
-            }
-            if(n.evaluation==borne_inf){
-                affiche_liste(best_sol);
-                return copie_solution_dans_le_tas(best_sol);
-            }
-        }
-        else if(n.evaluation<borne_sup){
-            vector<Arete*> branchement = sommet_a_separer(N, n);
-            for(Arete* a : branchement){
-                vector<Arete*> new_aretes = retire_arete(n.aretes, *a);
-                vector<Arete*> sol = calcule_solution(N, x0, new_aretes);
-                Noeud n_fils(new_aretes, sol, N, n.aretes_interdites);
-                n_fils.aretes_interdites.push_back(a);
-                n_fils.evalue();
-                if(n_fils.solution.size()!=0 && set.find(n_fils.hashcode)==set.end()){
-                    insertion_dichotomique(liste_noeuds,n_fils);
-                    set.insert(n_fils.hashcode);
+        vector<Arete*> branchement = sommet_a_separer(N, n);
+        for(Arete* a : branchement){
+            vector<Arete*> new_aretes = retire_arete(n.aretes, *a);
+            vector<Arete*> sol = calcule_solution(N, x0, new_aretes);
+            Noeud n_fils(new_aretes, sol, N, n.aretes_interdites);
+            n_fils.aretes_interdites.push_back(a);
+            n_fils.evalue();
+            if(n_fils.solution.size()!=0 && set.find(n_fils.hashcode)==set.end() && n_fils.evaluation<borne_sup){
+                if(n_fils.solution_realisable){
+                    borne_sup=n_fils.evaluation;
+                    auto it = lower_bound(liste_noeuds.begin(), liste_noeuds.end(), n_fils);
+                    liste_noeuds.erase(it, liste_noeuds.end());
+                    liste_noeuds.push_back(n_fils);
                 }
+                else{
+                    insertion_dichotomique(liste_noeuds,n_fils);
+                }
+                set.insert(n_fils.hashcode); 
             }
         }
+        
     }
-    cout << "Nb noeuds " << nb_noeuds_explores <<endl;
-    return copie_solution_dans_le_tas(best_sol);
 }
 
 #endif
