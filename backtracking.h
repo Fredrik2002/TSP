@@ -9,6 +9,17 @@
 
 using namespace std;
 
+double* matrice_distance(int N, vector<Arete*> &aretes){
+    double* distances = new double[N*N];
+    for(Arete *a : aretes){
+        int i=a->sommet1*N+a->sommet2;
+        int j=a->sommet2*N+a->sommet1;
+        distances[i]=a->poids;
+        distances[j]=a->poids;
+    }
+    return distances;
+}
+
 double valeur_solution(vector<Arete*> &solution){
     double somme = 0;
     for(Arete *a : solution){
@@ -17,71 +28,47 @@ double valeur_solution(vector<Arete*> &solution){
     return somme;
 }
 
-void placer(int N, double* distances, vector<int> &solution_actuelle, double score_actuel, 
-vector<int>* &meilleure_solution, double &meilleur_score, unordered_set<int> &sommet_explores){
-    if(solution_actuelle.size()==N){
-        if(score_actuel+distances[solution_actuelle.at(0)*N+solution_actuelle.at(N-1)]<meilleur_score){
-            meilleure_solution = new vector<int>(solution_actuelle.begin(), solution_actuelle.end());
-            meilleur_score = score_actuel+distances[solution_actuelle.at(0)*N+solution_actuelle.at(N-1)];
+void placer(int p, int N, double* distances, int* solution_actuelle, double score_actuel, 
+int* meilleure_solution, double &meilleur_score, bool* contient){
+    if(p==N){
+        if(score_actuel+distances[solution_actuelle[0]*N+solution_actuelle[N-1]]<meilleur_score){
+            for(int j=0;j<N;j++){
+                meilleure_solution[j] = solution_actuelle[j];
+            }
+            meilleur_score = score_actuel+distances[solution_actuelle[0]*N+solution_actuelle[N-1]];
         }
     }
     else{
-        int dernier_sommet = solution_actuelle.at(solution_actuelle.size()-1);
+        int dernier_sommet = solution_actuelle[p-1];
         for(int i=0;i<N;i++){
-            if(sommet_explores.find(i)==sommet_explores.end()){ // Si on a pas encore exploré le sommet i
-                if(score_actuel+distances[i*N+dernier_sommet]<meilleur_score){// Et que la solution est intéressante
-                    solution_actuelle.push_back(i);
-                    sommet_explores.insert(i); 
-                    placer(N, distances, solution_actuelle, score_actuel+distances[i*N+dernier_sommet], meilleure_solution, meilleur_score, sommet_explores);
-                    sommet_explores.erase(i);
-                    solution_actuelle.pop_back();
+                if(!contient[i] && score_actuel+distances[i*N+dernier_sommet]<meilleur_score){// Et que la solution est intéressante
+                    solution_actuelle[p] = i;
+                    contient[i] = true;
+                    placer(p+1, N, distances, solution_actuelle, score_actuel+distances[i*N+dernier_sommet], meilleure_solution, meilleur_score, contient);
+                    contient[i] = false;
                 }
             }
         }
     }
-}
-
-vector<Arete*>* reconstruit_solution(int N, vector<Arete*> &aretes, vector<int> solution){
-    vector<Arete*>* return_sol = new vector<Arete*>();
-    for(int i=1;i<N;i++){
-        int b = solution.at(i);
-        int c = solution.at(i-1);
-        for(Arete *a : aretes){
-            if(a->sommet1==b && a->sommet2==c || a->sommet2==b && a->sommet1==c){
-                return_sol->push_back(a);
-                break;
-            }
-        }
-    }
-    int b = solution.at(0);
-    int c = solution.at(N-1);
-    for(Arete *a : aretes){
-        if(a->sommet1==0 && a->sommet2==c || a->sommet2==b && a->sommet1==c){
-            return_sol->push_back(a);
-            break;
-        }
-    }
-    return return_sol;
-}
 
 vector<Arete*>* backtracking(int N, vector<Arete*> &aretes){
-    double* distances = new double[N*N];
-    for(Arete *a : aretes){
-        int i=a->sommet1*N+a->sommet2;
-        int j=a->sommet2*N+a->sommet1;
-        distances[i]=a->poids;
-        distances[j]=a->poids;
+    double* distances = matrice_distance(N, aretes);
+    vector<Arete*>* s = new vector<Arete*>();
+    int solution_finale[N];
+    int solution_actuelle[N];
+    bool contient[N];
+    contient[0]=true;
+    for(int i=1;i<N;i++){
+        contient[i]=false;
     }
-    vector<int>* solution_finale = new vector<int>();
-    unordered_set<int> sommet_explores;
-    vector<int> solution_actuelle;
     double meilleur_score = 1000000000;
     double score_actuel = 0;
-    solution_actuelle.push_back(0);
-    sommet_explores.insert(0);
-    placer(N, distances, solution_actuelle, score_actuel, solution_finale, meilleur_score, sommet_explores);
-    //Peu importe le sommet de départ
-    vector<Arete*>* s = reconstruit_solution(N, aretes, *solution_finale);
+    solution_actuelle[0]=0;
+    placer(1, N, distances, solution_actuelle, score_actuel, solution_finale, meilleur_score, contient);
+    for(int i=0;i<N-1;i++){
+        s->push_back(new Arete(solution_finale[i], solution_finale[i+1], distances[solution_finale[i]*N+solution_finale[i+1]]));
+    }
+    s->push_back(new Arete(solution_finale[0], solution_finale[N-1], distances[solution_finale[0]*N+solution_finale[N-1]]));
     return s;
 }
 
