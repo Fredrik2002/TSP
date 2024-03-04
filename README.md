@@ -1,4 +1,4 @@
-###Spoiler : Ceci n'est pas un README.md
+### Spoiler : Ceci n'est pas un README
 
 Rappel : 
 - Glouton 1 part du sommet 0 et va toujours au plus proche voisin par encore exploré. 
