@@ -9,6 +9,7 @@
 #include "backtracking.h"
 #include "christofides.h"
 #include "2-approx.h"
+#include "branch_and_bound2.h"
 
 
 using namespace std;
@@ -42,10 +43,12 @@ double (*distance)(int, int, int, int)){
         Y[i] = rand()%y_max;
     }
     vector<Arete*> aretes;
+    int p=0;
     for(int i=0;i<N;i++){
         for(int j=i+1;j<N;j++){
-            Arete* a = new Arete(i, j, distance(X[i], X[j], Y[i], Y[j]));
+            Arete* a = new Arete(i, j, distance(X[i], X[j], Y[i], Y[j]), p);
             aretes.push_back(a);
+            p++;
         }
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
@@ -67,22 +70,24 @@ int main(){
             H[i%3]=stod(str);
             i++;
         }
-        aretes.push_back(new Arete((int) H[0], (int) H[1], H[2]));
-        
+        aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
-    int N = 14;
-    clock_t startTime;
-    double t1;
+    sort(aretes.begin(), aretes.end(), comparateur_pointeur);
+    int N = 5;
+    int m = N*(N-1)/2;
     double somme=0;
-    for(int i=0;i<10;i++){
-        aretes = genere_instances(N, 100, 100, distance_euclidienne);
-        startTime = clock();
-        backtracking2(N, aretes);
-        t1 = (double (clock()-startTime))/1000;
-        cout << t1 << endl;
-        somme+=t1;
+
+
+    for(int i=0;i<1;i++){
+        Arete* aretes2 = new Arete[m];
+        int x0 = 0;
+        for(int i=0;i<m;i++){
+            aretes2[i] = *aretes.at(i);
+        }
+        
+        cout << "Start" << endl;
+        branch_and_bound2(N, aretes2);
     }
-    cout << (somme/10) << endl;
     
     // Close the file
     fin.close();

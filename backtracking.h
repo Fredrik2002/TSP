@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include "algo1.h"
+#include "branch_and_bound.h"
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -20,10 +20,31 @@ double* matrice_distance(int N, vector<Arete*> &aretes){
     return distances;
 }
 
+double* matrice_distance(int N, Arete* &aretes){
+    double* distances = new double[N*N];
+    int m =N*(N-1)/2;
+    for(int k=0;k<m;k++){
+        Arete a = aretes[k];
+        int i=a.sommet1*N+a.sommet2;
+        int j=a.sommet2*N+a.sommet1;
+        distances[i]=a.poids;
+        distances[j]=a.poids;
+    }
+    return distances;
+}
+
 double valeur_solution(vector<Arete*> &solution){
     double somme = 0;
     for(Arete *a : solution){
         somme += a->poids;
+    }
+    return somme;
+}
+
+double valeur_solution(vector<Arete> &solution){
+    double somme = 0;
+    for(Arete a : solution){
+        somme += a.poids;
     }
     return somme;
 }
@@ -66,9 +87,9 @@ vector<Arete*>* backtracking(int N, vector<Arete*> &aretes){
     solution_actuelle[0]=0;
     placer(1, N, distances, solution_actuelle, score_actuel, solution_finale, meilleur_score, contient);
     for(int i=0;i<N-1;i++){
-        s->push_back(new Arete(solution_finale[i], solution_finale[i+1], distances[solution_finale[i]*N+solution_finale[i+1]]));
+        s->push_back(new Arete(solution_finale[i], solution_finale[i+1], distances[solution_finale[i]*N+solution_finale[i+1]],1));
     }
-    s->push_back(new Arete(solution_finale[0], solution_finale[N-1], distances[solution_finale[0]*N+solution_finale[N-1]]));
+    s->push_back(new Arete(solution_finale[0], solution_finale[N-1], distances[solution_finale[0]*N+solution_finale[N-1]], 1));
     return s;
 }
 

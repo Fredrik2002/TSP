@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include "algo1.h"
+#include "branch_and_bound.h"
 #include <bits/stdc++.h>
 
 using namespace std;
