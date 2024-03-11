@@ -179,4 +179,32 @@ tuple<int, int> branch_and_bound2(int N, double* distances, double borne_sup=132
     }
 }
 
+void branch_and_bound21(Noeud2 &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
+    nb_noeuds_explores++;
+    vector<Noeud2> liste_noeuds;
+    for(int i=0;i<N;i++){
+        if(n.sommets_places[i]==-1 && !(n.sommets_places[1]==-1 && i==2)){
+            Noeud2 n_fils(n, i);
+            if(n_fils.evaluation < borne_sup){
+                if(n_fils.solution_realisable){
+                    borne_sup=n_fils.evaluation;
+                }
+                else{
+                    insertion_dichotomique(liste_noeuds,n_fils);
+                }
+            }
+        }
+    }
+    for(int i=0;i<liste_noeuds.size();i++){
+        branch_and_bound21(liste_noeuds.at(i), N, distances, borne_sup, nb_noeuds_explores);
+    }
+}
+
+tuple<int, int> lance_profondeur2(int N, double* &distances, double borne_sup=123456798){
+    int nb_noeuds_explores = 0;
+    Noeud2 n(distances, N);
+    branch_and_bound21(n, N, distances, borne_sup, nb_noeuds_explores);
+    return make_tuple(n.evaluation, nb_noeuds_explores);
+}
+
 #endif
