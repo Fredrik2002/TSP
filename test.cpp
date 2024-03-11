@@ -4,12 +4,11 @@
 #include <cmath>
 #include <ctime>
 #include <bits/stdc++.h>
-#include "algo1.h"
-#include "glouton.h"
-#include "backtracking.h"
+
 #include "christofides.h"
-#include "2-approx.h"
+#include "backtracking.h"
 #include "branch_and_bound2.h"
+
 
 
 using namespace std;
@@ -73,7 +72,7 @@ int main(){
         aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
-    int N = 5;
+    int N = 8;
     int m = N*(N-1)/2;
     double somme=0;
 
@@ -84,9 +83,14 @@ int main(){
         for(int i=0;i<m;i++){
             aretes2[i] = *aretes.at(i);
         }
-        
-        cout << "Start" << endl;
-        branch_and_bound2(N, aretes2);
+        double* matrice = matrice_distance(N, aretes);
+        tuple<vector<Arete>*, int> couple;
+        tuple<int, int> couple2;
+        couple = branch_and_bound(N, aretes2);
+        for(Arete a : *get<0>(couple)) a.afficher();
+        cout << get<1>(couple) << " Noeuds" << endl;
+        couple2 = branch_and_bound2(N, matrice);
+        cout << get<0>(couple2) <<" " << get<1>(couple2) << " Noeuds" << endl;
     }
     
     // Close the file

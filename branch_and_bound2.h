@@ -130,7 +130,7 @@ class Noeud2{
                     somme+=distances[i*N+solution[j-1]]+distances[i*N+solution[j+1]];
                 }
             }
-            evaluation = ceil(somme/2);
+            evaluation = somme/2;
         }
         
     }
@@ -156,7 +156,6 @@ tuple<int, int> branch_and_bound2(int N, double* distances, double borne_sup=132
         n = selection_noeud(liste_noeuds);
         nb_noeuds_explores++;
         if(n.solution_realisable){
-            cout << "Nb noeuds " << nb_noeuds_explores <<endl;
             return make_tuple(n.evaluation, nb_noeuds_explores);
         }
         else{

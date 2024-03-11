@@ -79,7 +79,7 @@ int main(){
     tuple<vector<Arete>*, int> couple;
     tuple<int, int> couple2;
     int i=0;
-    int N=10;
+    int N=8;
     int m = N*(N-1)/2;
     int nb_noeuds, nb_noeuds2, backtrck, s1, s2, held_karp;
     ofstream my_file_approx, my_file_exacte, instances;
@@ -111,16 +111,20 @@ int main(){
         startTime = clock();
         backtrck = valeur_solution(*backtracking(N, aretes));
         t1 = (double (clock()-startTime))/1000;
+        cout << t1 << "s ";
 
         startTime = clock();
         couple = branch_and_bound(N, aretes2, valeur_solution(*g2));
         t2 = (double (clock()-startTime))/1000;
         s1 = valeur_solution(*get<0>(couple));
         nb_noeuds = get<1>(couple);
+        cout << t2 << "s, "<<nb_noeuds<<" noeuds ";
+        
     
         startTime = clock();
         couple2 = branch_and_bound2(N, matrice);
         t3 = (double (clock()-startTime))/1000;
+        cout <<t3 <<"s, "<<nb_noeuds2<<" noeuds "<< endl;
         s2 = get<0>(couple2);
         nb_noeuds2 = get<1>(couple2);
 
@@ -128,12 +132,7 @@ int main(){
         held_karp = 0;
         t4 = (double (clock()-startTime))/1000;
 
-
-        cout << t1 <<"s " << t2 << "s " <<t3 << "s" << endl;
-        cout << backtrck << " " <<s1 << " " << s2 << " "<< endl;
-        
-
-        if(abs(backtrck - s2)>0.0001){
+        if(abs(backtrck - s2)>0.0001 || nb_noeuds>500){
             
             for(Arete *a : aretes){
                 a->afficher();

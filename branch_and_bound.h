@@ -212,12 +212,12 @@ tuple<vector<Arete>*, int> branch_and_bound(int N, Arete* &aretes, double borne_
     //borne_sup=12345678;
     Noeud n(aretes, N, x0);
     n.evalue();
+    n.afficher();
     liste_noeuds.push_back(n);
     while(liste_noeuds.size()>0){
         n = selection_noeud(liste_noeuds);
         nb_noeuds_explores++;
         if(n.solution_realisable){//Solution réalisable
-            cout << "Nb noeuds " << nb_noeuds_explores <<endl;
             vector<Arete>* s = new vector<Arete>();
             for(int i=0;i<N;i++){
                 s->push_back(aretes[n.solution[i]]);
