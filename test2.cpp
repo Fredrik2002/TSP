@@ -1,41 +1,40 @@
 #include <iostream>
+#include "branch_and_bound2.h"
 
 using namespace std;
 
-class Noeud{
-    public :
-        int N;
+class Noeud3{
+    static double* distances;
+    public:
+        int p;
         int* solution;
-
-        Noeud(int Na){
-            N = Na;
-            solution = new int[N];
-            solution [0] = 0;
-        }
-        
-        Noeud(Noeud &n){
-            N = n.N;
-            solution = new int[N];
-            copy(n.solution, n.solution+N, solution);
-            int p=1;
-            solution[p]=1;
-            
-        }
+        int* sommets_places; // liste des sommets
+        bool solution_realisable;
+        double evaluation; // Poids de l'ACPM
+        int N, m; // Nombre de sommets, Nombre d'aretes
 };
 
+
 int main(){
-    int N = 5;
-    int m = N*(N-1)/2;
-    double distances[25] = {0,104,30,48,20,
-                        104,0,84,152,96,
-                        30,84,0,68,12,
-                        48,152,68,0,56,
-                        20,96,12,56,0};
-    //branch_and_bound2(N, distances);
-    Noeud2 n(distances, N);
-    Noeud2 n2(n, 1);
-    Noeud2 n3(n, 3);
-    Noeud2 n4(n3, 2);
-    cout << "finished" << endl;
+    int N = 15;
+    double* d = new double[N];
+    
+    Noeud2::N = N;
+    Noeud2::distances = d;
+    Noeud2::m = N*(N-1)/2;
+
+    cout << sizeof(Noeud2) << endl;
+    cout << sizeof(int) << endl;
+    cout << sizeof(Noeud3) << endl;
+    cout << sizeof(double*) << endl;
+
+    Noeud2::N = 12;
+    Noeud2::distances = d;
+    Noeud2::m = N*(N-1)/2;
+
+    cout << sizeof(Noeud2) << endl;
+    cout << sizeof(int) << endl;
+    cout << sizeof(Noeud3) << endl;
+    cout << sizeof(double*) << endl;
 }
     
