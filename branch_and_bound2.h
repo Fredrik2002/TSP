@@ -15,20 +15,18 @@ using namespace std;
 
 class Noeud2{
     public:
-        double* distances;
+        static double* distances;
+        static int N;// Nombre de sommets
+        static int m;// Nombre d'aretes
         int p;
         int* solution;
         int* sommets_places; // liste des sommets
         bool solution_realisable;
         double evaluation; // Poids de l'ACPM
-        int N, m; // Nombre de sommets, Nombre d'aretes
 
-    Noeud2(double* d, int NB_SOMMETS){
+    Noeud2(){
         solution_realisable = false;
-        distances = d;
         p = 0;
-        N = NB_SOMMETS;
-        m=N*(N-1)/2;
         solution = new int[N];
         sommets_places = new int[N];
         solution[0] = 0; //On part du sommet 0
@@ -39,9 +37,6 @@ class Noeud2{
 
     Noeud2(Noeud2 &n, int a){
         solution_realisable = false;
-        distances = n.distances;
-        N=n.N;
-        m=n.m;
         p = n.p+1;
         solution = new int[N];
         copy(n.solution, n.solution+N, solution);
@@ -50,6 +45,11 @@ class Noeud2{
         copy(n.sommets_places, n.sommets_places+N, sommets_places);
         sommets_places[a]=p;
         evalue();
+    }
+
+    void destructeur(){
+        delete[] solution;
+        delete[] sommets_places;
     }
 
     void afficher(){
@@ -147,39 +147,7 @@ void insertion_dichotomique(vector<Noeud2> &liste, Noeud2 &n){
     liste.insert(it, n);
 }
 
-tuple<int, int> branch_and_bound2(int N, double* distances, double borne_sup=13245678){
-    int nb_noeuds_explores = 0;
-    vector<Noeud2> liste_noeuds;
-    Noeud2 n(distances, N);
-    liste_noeuds.push_back(n);
-    while(liste_noeuds.size()>0){
-        n = selection_noeud(liste_noeuds);
-        nb_noeuds_explores++;
-        if(n.solution_realisable){
-            return make_tuple(n.evaluation, nb_noeuds_explores);
-        }
-        else{
-            for(int i=0;i<N;i++){
-                if(n.sommets_places[i]==-1 && !(n.sommets_places[1]==-1 && i==2)){
-                    Noeud2 n_fils(n, i);
-                    if(n_fils.evaluation < borne_sup){
-                        if(n_fils.solution_realisable){
-                        borne_sup=n_fils.evaluation;
-                        auto it = lower_bound(liste_noeuds.begin(), liste_noeuds.end(), n_fils);
-                        liste_noeuds.erase(it, liste_noeuds.end());
-                        liste_noeuds.push_back(n_fils);
-                        }
-                        else{
-                            insertion_dichotomique(liste_noeuds,n_fils);
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-void branch_and_bound21(Noeud2 &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
+void branch_and_bound2(Noeud2 &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
     nb_noeuds_explores++;
     vector<Noeud2> liste_noeuds;
     for(int i=0;i<N;i++){
@@ -196,15 +164,20 @@ void branch_and_bound21(Noeud2 &n, int &N, double* &distances, double &borne_sup
         }
     }
     for(int i=0;i<liste_noeuds.size();i++){
-        branch_and_bound21(liste_noeuds.at(i), N, distances, borne_sup, nb_noeuds_explores);
+        branch_and_bound2(liste_noeuds.at(i), N, distances, borne_sup, nb_noeuds_explores);
     }
+    n.destructeur();
 }
 
 tuple<int, int> lance_profondeur2(int N, double* &distances, double borne_sup=123456798){
     int nb_noeuds_explores = 0;
-    Noeud2 n(distances, N);
-    branch_and_bound21(n, N, distances, borne_sup, nb_noeuds_explores);
+    Noeud2 n;
+    branch_and_bound2(n, N, distances, borne_sup, nb_noeuds_explores);
     return make_tuple(n.evaluation, nb_noeuds_explores);
 }
+
+double* Noeud2::distances = nullptr;
+int Noeud2::N = 0;
+int Noeud2::m = 0;
 
 #endif
