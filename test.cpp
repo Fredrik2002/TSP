@@ -72,7 +72,7 @@ int main(){
         aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
-    int N = 12;
+    int N = 5;
     int m = N*(N-1)/2;
     double somme=0;
 
@@ -84,13 +84,19 @@ int main(){
             aretes2[i] = *aretes.at(i);
         }
         double* matrice = matrice_distance(N, aretes);
-        tuple<vector<Arete>*, int> couple;
-        tuple<int, int> couple2;
+
         clock_t startTime = clock();
-        couple2 = lance_profondeur(N, aretes2);
-        double t3 = (double (clock()-startTime))/1000;
-        int nb_noeuds2 = get<1>(couple2);
-        cout <<t3 <<"s, "<<nb_noeuds2<<" noeuds "<< endl;
+        double backtrck = valeur_solution(*backtracking(N, aretes));
+        double t1 = (double (clock()-startTime))/1000;
+        cout << backtrck << " ";
+        
+        startTime = clock();
+        tuple<double, int> couple = lance_profondeur(N, aretes2);
+        double t2 = (double (clock()-startTime))/1000;
+        double s1 = get<0>(couple);
+        int nb_noeuds = get<1>(couple);
+        cout << s1 << " "<<nb_noeuds<<" noeuds ";
+        t2 = 0;
     }
     
     // Close the file

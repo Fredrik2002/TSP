@@ -76,10 +76,10 @@ int main(){
     vector<Arete*>* approx1 = new vector<Arete*>();
     vector<Arete*>* approx2 = new vector<Arete*>();
 
-    tuple<int, int> couple;
-    tuple<int, int> couple2;
+    tuple<double, int> couple;
+    tuple<double, int> couple2;
     int i=0;
-    int N=20;
+    int N=5;
     int m = N*(N-1)/2;
     int nb_noeuds, nb_noeuds2, backtrck, s1, s2, held_karp;
     ofstream my_file_approx, my_file_exacte, instances;
@@ -108,7 +108,7 @@ int main(){
         approx2 = christofides(N, aretes);
 
         //SOLUTIONS EXACTES
-        /*
+        
         startTime = clock();
         backtrck = valeur_solution(*backtracking(N, aretes));
         t1 = (double (clock()-startTime))/1000;
@@ -119,12 +119,12 @@ int main(){
         t2 = (double (clock()-startTime))/1000;
         s1 = get<0>(couple);
         nb_noeuds = get<1>(couple);
-        cout << t2 << "s, "<<nb_noeuds<<" noeuds ";*/
+        cout << t2 << "s, "<<nb_noeuds<<" noeuds ";
         t2 = 0;
         
     
         startTime = clock();
-        couple2 = lance_profondeur2(N, matrice, valeur_solution(*g2));
+        couple2 = lance_profondeur2(N, matrice);
         t3 = (double (clock()-startTime))/1000;
         nb_noeuds2 = get<1>(couple2);
         cout <<t3 <<"s, "<<nb_noeuds2<<" noeuds "<< endl;
@@ -135,13 +135,13 @@ int main(){
         held_karp = 0;
         t4 = (double (clock()-startTime))/1000;
 
-        if(false){
+        if(s1!=s2){
             
             for(Arete *a : aretes){
                 a->afficher();
             }
             cout << "Branch & Bound1 :" << s1 <<endl;
-            //cout << "backtrck :" << backtrck<<endl;
+            cout << "backtrck :" << backtrck<<endl;
             cout << "Branch & Bound 2 :" << s2<<endl;
         }
         else{

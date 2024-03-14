@@ -216,14 +216,15 @@ void branch_and_bound_profondeur(Noeud &n, int N, Arete* &aretes, double &borne_
     }
 }
 
-tuple<int, int> lance_profondeur(int N, Arete* &aretes, double borne_sup=13245678){
-    tuple<int, int> to_return;
+tuple<double, int> lance_profondeur(int N, Arete* &aretes, double borne_sup=13245678){
+    tuple<double, int> to_return;
     int x0 = 0;
     int nb_noeuds_explores = 0;
     unordered_set<string> set;
     borne_sup+=0.0001;
     Noeud n(aretes, N, x0);
     n.evalue();
+    if(n.solution_realisable) borne_sup=n.evaluation;
     branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores, set);
     return make_tuple(borne_sup, nb_noeuds_explores);
 }

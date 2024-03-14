@@ -147,38 +147,6 @@ void insertion_dichotomique(vector<Noeud2> &liste, Noeud2 &n){
     liste.insert(it, n);
 }
 
-tuple<int, int> branch_and_bound2(int N, double* distances, double borne_sup=13245678){
-    int nb_noeuds_explores = 0;
-    vector<Noeud2> liste_noeuds;
-    Noeud2 n(distances, N);
-    liste_noeuds.push_back(n);
-    while(liste_noeuds.size()>0){
-        n = selection_noeud(liste_noeuds);
-        nb_noeuds_explores++;
-        if(n.solution_realisable){
-            return make_tuple(n.evaluation, nb_noeuds_explores);
-        }
-        else{
-            for(int i=0;i<N;i++){
-                if(n.sommets_places[i]==-1 && !(n.sommets_places[1]==-1 && i==2)){
-                    Noeud2 n_fils(n, i);
-                    if(n_fils.evaluation < borne_sup){
-                        if(n_fils.solution_realisable){
-                        borne_sup=n_fils.evaluation;
-                        auto it = lower_bound(liste_noeuds.begin(), liste_noeuds.end(), n_fils);
-                        liste_noeuds.erase(it, liste_noeuds.end());
-                        liste_noeuds.push_back(n_fils);
-                        }
-                        else{
-                            insertion_dichotomique(liste_noeuds,n_fils);
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 void branch_and_bound21(Noeud2 &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
     nb_noeuds_explores++;
     vector<Noeud2> liste_noeuds;
@@ -200,11 +168,11 @@ void branch_and_bound21(Noeud2 &n, int &N, double* &distances, double &borne_sup
     }
 }
 
-tuple<int, int> lance_profondeur2(int N, double* &distances, double borne_sup=123456798){
+tuple<double, int> lance_profondeur2(int N, double* &distances, double borne_sup=123456798){
     int nb_noeuds_explores = 0;
     Noeud2 n(distances, N);
     branch_and_bound21(n, N, distances, borne_sup, nb_noeuds_explores);
-    return make_tuple(n.evaluation, nb_noeuds_explores);
+    return make_tuple(borne_sup, nb_noeuds_explores);
 }
 
 #endif
