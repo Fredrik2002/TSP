@@ -72,7 +72,7 @@ int main(){
 */
 
     int i=0;
-    int N=20;
+    int N=13;
     int m = N*(N-1)/2;
     Noeud2::N = N;
     Noeud2::m = m;
