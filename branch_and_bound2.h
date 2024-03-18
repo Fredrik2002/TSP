@@ -147,11 +147,7 @@ void insertion_dichotomique(vector<Noeud2> &liste, Noeud2 &n){
     liste.insert(it, n);
 }
 
-<<<<<<< HEAD
-void branch_and_bound21(Noeud2 &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
-=======
 void branch_and_bound2(Noeud2 &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
->>>>>>> fix
     nb_noeuds_explores++;
     vector<Noeud2> liste_noeuds;
     for(int i=0;i<N;i++){
@@ -175,15 +171,35 @@ void branch_and_bound2(Noeud2 &n, int &N, double* &distances, double &borne_sup,
 
 tuple<double, int> lance_profondeur2(int N, double* &distances, double borne_sup=123456798){
     int nb_noeuds_explores = 0;
-<<<<<<< HEAD
-    Noeud2 n(distances, N);
-    branch_and_bound21(n, N, distances, borne_sup, nb_noeuds_explores);
-    return make_tuple(borne_sup, nb_noeuds_explores);
-=======
     Noeud2 n;
     branch_and_bound2(n, N, distances, borne_sup, nb_noeuds_explores);
-    return make_tuple(n.evaluation, nb_noeuds_explores);
->>>>>>> fix
+    return make_tuple(borne_sup, nb_noeuds_explores);
+}
+
+void branch_and_bound3(Noeud2* &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
+    nb_noeuds_explores++;
+    vector<Noeud2> liste_noeuds;
+    for(int i=0;i<N;i++){
+        if(n->sommets_places[i]==-1 && !(n->sommets_places[1]==-1 && i==2)){
+            Noeud2* n_fils = new Noeud2(*n, i);
+            if(n_fils->evaluation < borne_sup){
+                if(n_fils->solution_realisable){
+                    borne_sup=n_fils->evaluation;
+                }
+                else{
+                    branch_and_bound3(n_fils, N, distances, borne_sup, nb_noeuds_explores);
+                }
+            }
+        }
+    }
+    n->destructeur();
+}
+
+tuple<double, int> lance_profondeur3(int N, double* &distances, double borne_sup=123456798){
+    int nb_noeuds_explores = 0;
+    Noeud2* n = new Noeud2();
+    branch_and_bound3(n, N, distances, borne_sup, nb_noeuds_explores);
+    return make_tuple(borne_sup, nb_noeuds_explores);
 }
 
 double* Noeud2::distances = nullptr;
