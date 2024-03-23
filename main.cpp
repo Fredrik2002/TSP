@@ -72,7 +72,7 @@ int main(){
 */
 
     int i=0;
-    int N=13;
+    int N=5;
     int m = N*(N-1)/2;
     Noeud2::N = N;
     Noeud2::m = m;
@@ -103,31 +103,35 @@ int main(){
         //SOLUTIONS EXACTES
         
         clock_t startTime = clock();
-        double backtrck = backtracking(N, aretes);
+        double backtrck = 0;//backtracking(N, aretes);
         double t1 = (double (clock()-startTime))/1000;
         //cout << t1 << "s ";
         
         startTime = clock();
-        tuple<double, int> couple = lance_profondeur(N, aretes2);
+        tuple<double, int> couple ;//= lance_profondeur(N, aretes2);
         double t2 = (double (clock()-startTime))/1000;
         double s1 = get<0>(couple);
         int nb_noeuds = get<1>(couple);
-        cout << t2 << "s, "<<nb_noeuds<<" noeuds ";
+        //cout << t2 << "s, "<<nb_noeuds<<" noeuds ";
         
 
         startTime = clock();
         tuple<double, int> couple2 = lance_profondeur3(N, matrice, g2);
         double t3 = (double (clock()-startTime))/1000;
-        int nb_noeuds2 = get<1>(couple);
-        cout <<t3 <<"s, "<<nb_noeuds2<<" noeuds "<< endl;
-        double s2 = get<0>(couple);
+        int nb_noeuds2 = get<1>(couple2);
+        cout <<t3 <<"s, "<<nb_noeuds2<<" noeuds ";
+        double s2 = get<0>(couple2);
         
 
         startTime = clock();
-        double held_karp = 0;
+        vector<vector<int>> state(N);
+        for(auto & neighbors : state)
+            neighbors = vector<int>((1 << N) - 1, 100000);
+        double h_k = held_karp(N, matrice, 0,1, state);
         double t4 = (double (clock()-startTime))/1000;
+        cout << " " << t4 <<"s, "<< endl;
 
-        if(false){
+        if(h_k != s2){
             
             for(Arete *a : aretes){
                 a->afficher();

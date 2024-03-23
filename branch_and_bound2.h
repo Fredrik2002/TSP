@@ -47,7 +47,7 @@ class Noeud2{
         evalue();
     }
 
-    void destructeur(){
+    ~Noeud2(){
         delete[] solution;
         delete[] sommets_places;
     }
@@ -136,52 +136,12 @@ class Noeud2{
     }
 };
 
-Noeud2 selection_noeud(vector<Noeud2> &liste){ // Strategie de parcours, voir fonction de tri des noeuds
-    Noeud2 n = liste.at(0);
-    liste.erase(liste.begin());
-    return n;
-}
-
-void insertion_dichotomique(vector<Noeud2> &liste, Noeud2 &n){
-    auto it = lower_bound(liste.begin(), liste.end(), n);
-    liste.insert(it, n);
-}
-
-void branch_and_bound2(Noeud2 &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
-    nb_noeuds_explores++;
-    vector<Noeud2> liste_noeuds;
-    for(int i=0;i<N;i++){
-        if(n.sommets_places[i]==-1 && !(n.sommets_places[1]==-1 && i==2)){
-            Noeud2 n_fils(n, i);
-            if(n_fils.evaluation < borne_sup){
-                if(n_fils.solution_realisable){
-                    borne_sup=n_fils.evaluation;
-                }
-                else{
-                    insertion_dichotomique(liste_noeuds,n_fils);
-                }
-            }
-        }
-    }
-    for(int i=0;i<liste_noeuds.size();i++){
-        branch_and_bound2(liste_noeuds.at(i), N, distances, borne_sup, nb_noeuds_explores);
-    }
-    n.destructeur();
-}
-
-tuple<double, int> lance_profondeur2(int N, double* &distances, double borne_sup=123456798){
-    int nb_noeuds_explores = 0;
-    Noeud2 n;
-    branch_and_bound2(n, N, distances, borne_sup, nb_noeuds_explores);
-    return make_tuple(borne_sup, nb_noeuds_explores);
-}
-
 void branch_and_bound3(Noeud2* &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
-    nb_noeuds_explores++;
     vector<Noeud2> liste_noeuds;
     for(int i=0;i<N;i++){
         if(n->sommets_places[i]==-1 && !(n->sommets_places[1]==-1 && i==2)){
             Noeud2* n_fils = new Noeud2(*n, i);
+            nb_noeuds_explores++;
             if(n_fils->evaluation < borne_sup){
                 if(n_fils->solution_realisable){
                     borne_sup=n_fils->evaluation;
@@ -190,15 +150,16 @@ void branch_and_bound3(Noeud2* &n, int &N, double* &distances, double &borne_sup
                     branch_and_bound3(n_fils, N, distances, borne_sup, nb_noeuds_explores);
                 }
             }
+            delete n_fils;
         }
     }
-    n->destructeur();
 }
 
 tuple<double, int> lance_profondeur3(int N, double* &distances, double borne_sup=123456798){
-    int nb_noeuds_explores = 0;
+    int nb_noeuds_explores = 1;
     Noeud2* n = new Noeud2();
     branch_and_bound3(n, N, distances, borne_sup, nb_noeuds_explores);
+    delete n;
     return make_tuple(borne_sup, nb_noeuds_explores);
 }
 
