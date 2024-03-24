@@ -56,6 +56,7 @@ double (*distance)(int, int, int, int)){
 }
 
 int main(){
+    srand(time(NULL));
     ifstream fin;
 
     string line, str;
@@ -73,12 +74,10 @@ int main(){
         aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
-    int N = 18;
+    int N = 8;
     int m = N*(N-1)/2;
-    double somme=0;
 
     aretes = genere_instances(N, 100, 100, distance_de_manhattan);
-
 
     for(int i=0;i<1;i++){
         Arete* aretes2 = new Arete[m];
@@ -90,13 +89,11 @@ int main(){
         Noeud2::N = N;
         Noeud2::m = m;
         Noeud2::distances = matrice;
-        int x;
-        
-        vector<Arete*>* g2 = new vector<Arete*>();
-        g2 = glouton2(N, aretes);
-        cin >> x;
-        tuple<double, int> couple = lance_profondeur3(N, matrice, valeur_solution(*g2));
-        cin >> x;
+        Noeud2::two_lightest = lightest_two_weights(N, matrice);
+        double backtrck = backtracking(N, aretes);
+        tuple<double, int> couple = lance_profondeur3(N, matrice);
+        cout << backtrck << " " << get<0>(couple) << endl;
+        cout << get<1>(couple) << " noeuds " <<endl;
     }
     
     // Close the file

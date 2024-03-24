@@ -72,7 +72,7 @@ int main(){
 */
 
     int i=0;
-    int N=5;
+    int N=14;
     int m = N*(N-1)/2;
     Noeud2::N = N;
     Noeud2::m = m;
@@ -91,6 +91,7 @@ int main(){
         vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
         double* matrice = matrice_distance(N, aretes);
         Noeud2::distances = matrice;
+        Noeud2::two_lightest = lightest_two_weights(N, matrice);
         for(int i=0;i<m;i++){
             aretes2[i] = *(aretes.at(i));
         }
@@ -100,23 +101,26 @@ int main(){
         double approx1 = deux_approx(N, aretes);
         double approx2 = christofides(N, aretes);
 
+        double best_approx = (g2<approx2) ? g2 : approx2;
+        
+
         //SOLUTIONS EXACTES
         
         clock_t startTime = clock();
-        double backtrck = 0;//backtracking(N, aretes);
+        double backtrck = backtracking(N, aretes);
         double t1 = (double (clock()-startTime))/1000;
-        //cout << t1 << "s ";
+        cout << t1 << "s ";
         
         startTime = clock();
-        tuple<double, int> couple ;//= lance_profondeur(N, aretes2);
+        tuple<double, int> couple = lance_profondeur2(N, matrice, best_approx);
         double t2 = (double (clock()-startTime))/1000;
         double s1 = get<0>(couple);
         int nb_noeuds = get<1>(couple);
-        //cout << t2 << "s, "<<nb_noeuds<<" noeuds ";
+        cout << t2 << "s, "<<nb_noeuds<<" noeuds ";
         
 
         startTime = clock();
-        tuple<double, int> couple2 = lance_profondeur3(N, matrice, g2);
+        tuple<double, int> couple2 = lance_profondeur3(N, matrice, best_approx);
         double t3 = (double (clock()-startTime))/1000;
         int nb_noeuds2 = get<1>(couple2);
         cout <<t3 <<"s, "<<nb_noeuds2<<" noeuds ";
@@ -131,7 +135,7 @@ int main(){
         double t4 = (double (clock()-startTime))/1000;
         cout << " " << t4 <<"s, "<< endl;
 
-        if(h_k != s2){
+        if(s2!=s1 || s2!=h_k){
             
             for(Arete *a : aretes){
                 a->afficher();
