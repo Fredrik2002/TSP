@@ -1,0 +1,12 @@
+Temps de résolution Backtracking, Temps de résolution Branch & Bound1 (Orienté arête),Nombre de noeuds explorés Branch & Bound1, Temps de résolution Branch & Bound2 (Orienté sommet),Nombre de noeuds explorés Branch & Bound2, Temps de résolution programmation dynamique, Temps de résolution PLNE 
+14
+1.498,0.004,598,0.005,17581,0.006,3.883.097
+1.445,0.059,7262,0.018,53437,0.008,0.3530.282
+1.761,0.133,24442,0.05,167064,0.006,0.2160.171
+1.37,0.383,52367,0.036,125014,0.007,1.5261.174
+2.976,0.133,20303,0.029,101755,0.008,0.10.077
+0.485,0.091,15441,0.022,78230,0.007,1.7611.341
+1.741,1.377,207016,0.069,217528,0.007,0.2090.164
+1.501,0.013,2687,0.01,35478,0.006,0.2720.209
+0.917,0,110,0.001,924,0.006,0.0260.021
+1.039,0.485,74136,0.15,366678,0.006,1.2610.978

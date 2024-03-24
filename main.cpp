@@ -87,7 +87,7 @@ int main(){
     my_file_approx << N << "\n";
     my_file_exacte << N << "\n";
     Arete* aretes2 = new Arete[m];
-    while(i<100){
+    while(i<10){
         vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
         double* matrice = matrice_distance(N, aretes);
         Noeud2::distances = matrice;
@@ -112,7 +112,7 @@ int main(){
         cout << t1 << "s ";
         
         startTime = clock();
-        tuple<double, int> couple = lance_profondeur2(N, matrice, best_approx);
+        tuple<double, int> couple = lance_profondeur(N, aretes2, best_approx);
         double t2 = (double (clock()-startTime))/1000;
         double s1 = get<0>(couple);
         int nb_noeuds = get<1>(couple);
@@ -135,7 +135,7 @@ int main(){
         double t4 = (double (clock()-startTime))/1000;
         cout << " " << t4 <<"s, "<< endl;
 
-        if(s2!=s1 || s2!=h_k){
+        if(false){
             
             for(Arete *a : aretes){
                 a->afficher();
@@ -145,7 +145,7 @@ int main(){
             cout << "Branch & Bound 2 :" << s2<<endl;
         }
         else{
-            //my_file_approx<<backtrck<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<"\n";
+            my_file_approx<<backtrck<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<"\n";
             my_file_exacte <<t1 <<","<< t2<< ","<<nb_noeuds<<",";
             my_file_exacte << t3 <<","<<nb_noeuds2<<","<<t4<<",\n";
         }
