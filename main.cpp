@@ -134,7 +134,7 @@ int main(){
         double h_k = 0;//held_karp(N, matrice, 0,1, state);
         double t4 = (double (clock()-startTime))/1000;
         cout << " " << t4 <<"s, "<< endl;
-
+        // Test
         if(false){
             
             for(Arete *a : aretes){
