@@ -72,7 +72,7 @@ int main(){
 */
 
     int i=0;
-    int N=14;
+    int N=20;
     int m = N*(N-1)/2;
     Noeud2::N = N;
     Noeud2::m = m;
@@ -107,7 +107,7 @@ int main(){
         //SOLUTIONS EXACTES
         
         clock_t startTime = clock();
-        double backtrck = backtracking(N, aretes);
+        double backtrck = 0;//backtracking(N, aretes);
         double t1 = (double (clock()-startTime))/1000;
         cout << t1 << "s ";
         
@@ -120,7 +120,7 @@ int main(){
         
 
         startTime = clock();
-        tuple<double, int> couple2 = lance_profondeur3(N, matrice, best_approx);
+        tuple<double, int> couple2;// = lance_profondeur3(N, matrice, best_approx);
         double t3 = (double (clock()-startTime))/1000;
         int nb_noeuds2 = get<1>(couple2);
         cout <<t3 <<"s, "<<nb_noeuds2<<" noeuds ";
@@ -131,7 +131,7 @@ int main(){
         vector<vector<int>> state(N);
         for(auto & neighbors : state)
             neighbors = vector<int>((1 << N) - 1, 100000);
-        double h_k = held_karp(N, matrice, 0,1, state);
+        double h_k = 0;//held_karp(N, matrice, 0,1, state);
         double t4 = (double (clock()-startTime))/1000;
         cout << " " << t4 <<"s, "<< endl;
 

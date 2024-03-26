@@ -7,7 +7,7 @@
 using namespace std;
 
 
-int held_karp(int N, double* &graph, int pos, int visited, vector<vector<int>>& state) {
+double held_karp(int N, double* &graph, int pos, int visited, vector<vector<double>>& state) {
     if(visited == ((1 << N) - 1))
         return graph[pos*N]; 
 
