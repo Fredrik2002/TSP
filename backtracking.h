@@ -90,6 +90,7 @@ double backtracking(int N, vector<Arete*> &aretes){
         s->push_back(new Arete(solution_finale[i], solution_finale[i+1], distances[solution_finale[i]*N+solution_finale[i+1]],1));
     }
     s->push_back(new Arete(solution_finale[0], solution_finale[N-1], distances[solution_finale[0]*N+solution_finale[N-1]], 1));
+    affiche_liste(*s);
     return valeur_solution(*s);
 }
 

@@ -12,6 +12,34 @@
 
 using namespace std;
 
+int* lightest_two_weights(int N, double* distances){
+    int* weights = new int[2*N];
+    for(int s=0;s<N;s++){
+        int a = -1;
+        int b = -1;
+        for(int i=0;i<N;i++){
+            if(i!=s){
+                if(a==-1) a = i;
+                else if(b==-1) b = i;
+                else if(distances[s*N+a]>distances[s*N+i]) {
+                    if(distances[s*N+a]>distances[s*N+b])a=i;
+                    else b=i;
+                }
+                else if(distances[s*N+b]>distances[s*N+i]) b=i;
+            }
+        }
+        if(distances[s*N+a]<distances[s*N+b]){
+            weights[2*s] = a;
+            weights[2*s+1] = b;
+        }
+        else{
+            weights[2*s+1] = a;
+            weights[2*s] = b;
+        }
+    }
+        return weights;
+}
+
 
 class Noeud2{
     public:
@@ -26,7 +54,12 @@ class Noeud2{
         double evaluation; // Poids de l'ACPM
         double sommet_actuel;
 
-    Noeud2(){
+    Noeud2(int NB_SOMMETS, double* d){
+        N = NB_SOMMETS;
+        m = N*(N-1)/2;
+        two_lightest = lightest_two_weights(N, d);
+        distances = d;
+
         solution_realisable = false;
         p = 0;
         solution = new int[N];
@@ -127,33 +160,6 @@ class Noeud2{
     }
 };
 
-int* lightest_two_weights(int N, double* distances){
-    int* weights = new int[2*N];
-    for(int s=0;s<N;s++){
-        int a = -1;
-        int b = -1;
-        for(int i=0;i<N;i++){
-            if(i!=s){
-                if(a==-1) a = i;
-                else if(b==-1) b = i;
-                else if(distances[s*N+a]>distances[s*N+i]) {
-                    if(distances[s*N+a]>distances[s*N+b])a=i;
-                    else b=i;
-                }
-                else if(distances[s*N+b]>distances[s*N+i]) b=i;
-            }
-        }
-        if(distances[s*N+a]<distances[s*N+b]){
-            weights[2*s] = a;
-            weights[2*s+1] = b;
-        }
-        else{
-            weights[2*s+1] = a;
-            weights[2*s] = b;
-        }
-    }
-        return weights;
-}
 
 bool comparateur_pointeur_noeud(const Noeud2* a, const Noeud2* b){
     return a->evaluation < b-> evaluation;
@@ -183,7 +189,7 @@ void branch_and_bound2(Noeud2* &n, int &N, double* &distances, double &borne_sup
 
 tuple<double, int> lance_profondeur2(int N, double* &distances, double borne_sup=123456798){
     int nb_noeuds_explores = 1;
-    Noeud2* n = new Noeud2();
+    Noeud2* n = new Noeud2(N, distances);
     branch_and_bound2(n, N, distances, borne_sup, nb_noeuds_explores);
     delete n;
     return make_tuple(borne_sup, nb_noeuds_explores);
@@ -210,7 +216,7 @@ void branch_and_bound3(Noeud2* &n, int &N, double* &distances, double &borne_sup
 
 tuple<double, int> lance_profondeur3(int N, double* &distances, double borne_sup=123456798){
     int nb_noeuds_explores = 1;
-    Noeud2* n = new Noeud2();
+    Noeud2* n = new Noeud2(N, distances);
     branch_and_bound3(n, N, distances, borne_sup, nb_noeuds_explores);
     delete n;
     return make_tuple(borne_sup, nb_noeuds_explores);

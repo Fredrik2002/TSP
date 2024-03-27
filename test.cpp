@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <cmath>
-#include <ctime>
 #include <chrono>
 #include <bits/stdc++.h>
 
@@ -15,6 +14,7 @@
 
 
 using namespace std;
+using namespace std::chrono;
 
 double distance_de_manhattan(int xi, int xj, int yi, int yj){
     //Retourne la distance de Manhattan entre les points (xi, yi) et (xj, yj)
@@ -86,11 +86,8 @@ int main(){
             aretes2[i] = *aretes.at(i);
         }
         double* matrice = matrice_distance(N, aretes);
-        Noeud2::N = N;
-        Noeud2::m = m;
-        Noeud2::distances = matrice;
-        Noeud2::two_lightest = lightest_two_weights(N, matrice);
-
+        
+        // SOLUTIONS APPROCHEES
         double g1 = glouton1(N, aretes, 0);
         double g2 = glouton2(N, aretes);
         double approx1 = deux_approx(N, aretes);
@@ -98,39 +95,43 @@ int main(){
 
         double best_approx = (g2<approx2) ? g2 : approx2;
         
-        clock_t startTime = clock();
-        cout << "Start Backtracking" << endl;
-        double backtrck = backtracking(N, aretes);
-        double t1 = (double (clock()-startTime))/1000;
-        cout << round(t1)/1000 << "s " <<endl;
-        
-        startTime = clock();
-        cout << "Start B&B1" << endl;
-        tuple<double, int> couple; //= lance_profondeur(N, aretes2, best_approx);
-        double t2 = (double (clock()-startTime))/1000;
-        double s1 = get<0>(couple);
-        int nb_noeuds = get<1>(couple);
-        cout << round(t2)/1000 << "s, "<<nb_noeuds<<" noeuds "<<endl;
-        
-        this_thread::sleep_for(chrono::nanoseconds(10));
 
-        startTime = clock();
-        cout << "Start B&B2" << endl;
+        //SOLUTIONS EXACTES
+        
+        auto startTime = high_resolution_clock::now();
+        double backtrck = backtracking(N, aretes);
+        duration<float> d1 = high_resolution_clock::now()-startTime;
+        cout << d1.count() << "s ";
+
+        startTime = high_resolution_clock::now();
+        cout << "start" << endl;
         tuple<double, int> couple2 = lance_profondeur3(N, matrice, best_approx);
-        double t3 = (double (clock()-startTime))/1000;
+        cout << "end" << endl;
+        duration<float> d3 = high_resolution_clock::now()-startTime;
         int nb_noeuds2 = get<1>(couple2);
-        cout <<round(t3)/1000 <<"s, "<<nb_noeuds2<<" noeuds "<<endl;
+        cout <<d3.count() <<"s, "<<nb_noeuds2<<" noeuds ";
         double s2 = get<0>(couple2);
         
+        startTime = high_resolution_clock::now();
+        cout << "start" << endl;
+        tuple<double, int> couple = lance_profondeur(N, aretes2, best_approx);
+        cout << "end" << endl;
+        duration<float> d2 = high_resolution_clock::now()-startTime;
+        double s1 = get<0>(couple);
+        int nb_noeuds = get<1>(couple);
+        cout << d2.count() << "s, "<<nb_noeuds<<" noeuds ";
+        
 
-        startTime = clock();
-        cout << "Start Prog dyn" << endl;
+        
+        
+
+        startTime = high_resolution_clock::now();
         vector<vector<int>> state(N);
         for(auto & neighbors : state)
             neighbors = vector<int>((1 << N) - 1, 100000);
         double h_k = held_karp(N, matrice, 0,1, state);
-        double t4 = (double (clock()-startTime))/1000;
-        cout << " " << round(t4)/1000 <<"s, "<< endl;
+        duration<float> d4 = high_resolution_clock::now()-startTime;
+        cout << " " << d4.count() <<"s, "<< endl;
     }
     
     // Close the file

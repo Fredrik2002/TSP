@@ -35,7 +35,7 @@ class Arete{
     }
 
     void afficher(){
-        cout << sommet1 << "-" << sommet2 << ", Poids: " << poids <<" - ID :" << id << endl;
+        cout << sommet1 << "," << sommet2 << ", " << poids << endl;
     }
 
     bool operator<(const Arete &autre){
@@ -59,16 +59,17 @@ bool comparateur_pointeur(const Arete* a, const Arete* b){
 
 class Noeud{
     public:
+        static unordered_set<string> set; 
+        static int x0;
+        static int N, m; // Nombre de sommets, Nombre d'aretes
+
         Arete* aretes; // Listes des arêtes disponibles
         int* solution; // ACPM
-        bool* aretes_interdites;
         int* degres; // Tableau des degrés de chaque sommets
         bool solution_realisable;
         double evaluation; // Poids de l'ACPM
-        int N, m; // Nombre de sommets, Nombre d'aretes
         string hashcode;
-        int id;
-        int x0;
+        
 
     Noeud(Arete* &ar,  int NB_SOMMETS, int &sommet_interdit){
         aretes=ar;
@@ -78,7 +79,6 @@ class Noeud{
         degres = new int[N]();
         solution = new int[N];
         solution[N-3] = -1;
-        aretes_interdites = new bool[m]();
         x0 = sommet_interdit;
         hashcode = string(m, '0'); 
     }
@@ -86,24 +86,23 @@ class Noeud{
     Noeud(Noeud &n, int a){
         aretes=n.aretes;
         solution_realisable=false;
-        N=n.N;
-        m = n.m;
         degres = new int[N]();
         solution = new int[N];
         solution[N-3] = -1;
-        aretes_interdites = new bool[m]();
-        copy(n.aretes_interdites, n.aretes_interdites+m, aretes_interdites);
-        aretes_interdites[a] = true;
         hashcode = n.hashcode;
         hashcode[a]='1';
-        x0 = n.x0;
-        evalue();
+        if(set.find(hashcode)==set.end()){
+            evalue();
+            set.insert(hashcode); 
+        } 
+        else {
+            evaluation = 10000000;
+        }
     }
 
     ~Noeud(){
         delete[] degres;
         delete[] solution;
-        delete[] aretes_interdites;
     }
 
     void afficher(){
@@ -151,7 +150,7 @@ class Noeud{
             int r1 = trouver_racine(a.sommet1, parent);
             int r2 = trouver_racine(a.sommet2, parent);
 
-            if (r1!=r2 && a.sommet1!=x0 && a.sommet2!=x0 && aretes_interdites[i]==0){ // On peut prendre l'arête
+            if (r1!=r2 && a.sommet1!=x0 && a.sommet2!=x0 && hashcode[i]=='0'){ // On peut prendre l'arête
                 parent[r2] = r1; // Lie les composantes connexes
                 solution[p] = i;
                 p++;
@@ -166,7 +165,7 @@ class Noeud{
         int i=0;
         while(i<m && aretes_retirees.size()<2){// On n'a besoin que des 2 arêtes les plus légères
             Arete a = aretes[i];
-            if((a.sommet1 == x0 || a.sommet2 == x0) && !aretes_interdites[i]){
+            if((a.sommet1 == x0 || a.sommet2 == x0) && hashcode[i]=='0'){
                 aretes_retirees.push_back(i);
             }
             i++;
@@ -200,19 +199,18 @@ void insertion_dichotomique(vector<Noeud> &liste, Noeud &n){
     liste.insert(it, n);
 }
 
-void branch_and_bound_profondeur(Noeud* &n, int N, Arete* &aretes, double &borne_sup, int &nb_noeuds_explores, 
-                unordered_set<string> &set){
-    nb_noeuds_explores++;
+void branch_and_bound_profondeur(Noeud* &n, int N, Arete* &aretes, double &borne_sup, int &nb_noeuds_explores){
     vector<int> branchement = sommet_a_separer(N, *n);
     for(int a : branchement){
         Noeud* n_fils = new Noeud(*n, a);
-        if(n_fils->solution[N-3]!=-1 && set.find(n_fils->hashcode)==set.end() && n_fils->evaluation<borne_sup){
-            set.insert(n_fils->hashcode); 
+        nb_noeuds_explores++;
+        if(n_fils->solution[N-3]!=-1 && n_fils->evaluation<borne_sup){
+            
             if(n_fils->solution_realisable){
                 borne_sup=n_fils->evaluation;
             }
             else{
-                branch_and_bound_profondeur(n_fils, N, aretes, borne_sup, nb_noeuds_explores, set);
+                branch_and_bound_profondeur(n_fils, N, aretes, borne_sup, nb_noeuds_explores);
             }
         }
         delete n_fils;
@@ -223,14 +221,19 @@ tuple<double, int> lance_profondeur(int N, Arete* &aretes, double borne_sup=1324
     tuple<double, int> to_return;
     int x0 = 0;
     int nb_noeuds_explores = 0;
-    unordered_set<string> set;
     borne_sup+=0.0001;
     Noeud* n = new Noeud(aretes, N, x0);
     n->evalue();
     if(n->solution_realisable) borne_sup=n->evaluation;
-    branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores, set);
+    branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores);
     return make_tuple(borne_sup, nb_noeuds_explores);
 }
+
+unordered_set<string> set2;
+unordered_set<string> Noeud::set = set2;
+int Noeud::N = 0;
+int Noeud::m = 0;
+int Noeud::x0 = 5;
 
 
 
