@@ -104,7 +104,7 @@ int main(){
         //SOLUTIONS EXACTES
         
         auto startTime = high_resolution_clock::now();
-        double backtrck = 0;//backtracking(N, aretes);
+        double backtrck = backtracking(N, aretes);
         duration<float> d1 = high_resolution_clock::now()-startTime;
         cout << d1.count() << "s ";
         
@@ -117,7 +117,7 @@ int main(){
         
 
         startTime = high_resolution_clock::now();
-        tuple<double, int> couple2;// = lance_profondeur3(N, matrice, best_approx);
+        tuple<double, int> couple2= lance_profondeur3(N, matrice, best_approx);
         duration<float> d3 = high_resolution_clock::now()-startTime;
         int nb_noeuds2 = get<1>(couple2);
         cout <<d3.count() <<"s, "<<nb_noeuds2<<" noeuds ";

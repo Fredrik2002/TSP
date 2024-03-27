@@ -94,36 +94,21 @@ int main(){
         double approx2 = christofides(N, aretes);
 
         double best_approx = (g2<approx2) ? g2 : approx2;
+
+        cout << best_approx << endl;
         
 
         //SOLUTIONS EXACTES
         
-        auto startTime = high_resolution_clock::now();
-        double backtrck = backtracking(N, aretes);
-        duration<float> d1 = high_resolution_clock::now()-startTime;
-        cout << d1.count() << "s ";
-
-        startTime = high_resolution_clock::now();
-        cout << "start" << endl;
-        tuple<double, int> couple2 = lance_profondeur3(N, matrice, best_approx);
-        cout << "end" << endl;
-        duration<float> d3 = high_resolution_clock::now()-startTime;
-        int nb_noeuds2 = get<1>(couple2);
-        cout <<d3.count() <<"s, "<<nb_noeuds2<<" noeuds ";
-        double s2 = get<0>(couple2);
         
-        startTime = high_resolution_clock::now();
-        cout << "start" << endl;
-        tuple<double, int> couple = lance_profondeur(N, aretes2, best_approx);
-        cout << "end" << endl;
+        auto startTime = high_resolution_clock::now();
+        tuple<double, int> couple = lance_profondeur(N, aretes2,  best_approx);
         duration<float> d2 = high_resolution_clock::now()-startTime;
         double s1 = get<0>(couple);
         int nb_noeuds = get<1>(couple);
-        cout << d2.count() << "s, "<<nb_noeuds<<" noeuds ";
-        
+        cout << " " << d2.count() <<"s, "<< nb_noeuds << "noeuds " <<  s1 << endl;
 
-        
-        
+
 
         startTime = high_resolution_clock::now();
         vector<vector<int>> state(N);

@@ -71,16 +71,19 @@ class Noeud{
         string hashcode;
         
 
-    Noeud(Arete* &ar,  int NB_SOMMETS, int &sommet_interdit){
+    Noeud(Arete* &ar,  int NB_SOMMETS, int x){
+        unordered_set<string> s;
+        set = s;
         aretes=ar;
         solution_realisable=false;
         N = NB_SOMMETS;
         m=N*(N-1)/2;
         degres = new int[N]();
         solution = new int[N];
+        x0 = x;
         solution[N-3] = -1;
-        x0 = sommet_interdit;
-        hashcode = string(m, '0'); 
+        hashcode = string(m, '0');
+        evalue();
     }
 
     Noeud(Noeud &n, int a){
@@ -219,11 +222,19 @@ void branch_and_bound_profondeur(Noeud* &n, int N, Arete* &aretes, double &borne
 
 tuple<double, int> lance_profondeur(int N, Arete* &aretes, double borne_sup=13245678){
     tuple<double, int> to_return;
-    int x0 = 0;
     int nb_noeuds_explores = 0;
     borne_sup+=0.0001;
-    Noeud* n = new Noeud(aretes, N, x0);
-    n->evalue();
+    int best_x0 = 0;
+    double best_sol = 0;
+    for(int i=0;i<N;i++){
+        Noeud* n = new Noeud(aretes, N, i);
+        if(best_sol<n->evaluation){
+            best_x0 = i;
+            best_sol = n->evaluation;
+        }
+        delete n;
+    }
+    Noeud* n = new Noeud(aretes, N, best_x0);
     if(n->solution_realisable) borne_sup=n->evaluation;
     branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores);
     return make_tuple(borne_sup, nb_noeuds_explores);
@@ -233,7 +244,7 @@ unordered_set<string> set2;
 unordered_set<string> Noeud::set = set2;
 int Noeud::N = 0;
 int Noeud::m = 0;
-int Noeud::x0 = 5;
+int Noeud::x0 = 0;
 
 
 
