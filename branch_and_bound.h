@@ -235,6 +235,7 @@ tuple<double, int> lance_profondeur(int N, Arete* &aretes, double borne_sup=1324
         delete n;
     }
     Noeud* n = new Noeud(aretes, N, best_x0);
+    cout << n->evaluation << endl;
     if(n->solution_realisable) borne_sup=n->evaluation;
     branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores);
     return make_tuple(borne_sup, nb_noeuds_explores);

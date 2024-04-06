@@ -49,6 +49,14 @@ double valeur_solution(vector<Arete> &solution){
     return somme;
 }
 
+double valeur_solution(int N, int* solution, double* matrice){
+    double somme = 0;
+    for(int i=0;i<N;i++){
+        somme += matrice[solution[i]*N+solution[i+1]];
+    }
+    return somme;
+}
+
 void placer(int p, int N, double* distances, int* solution_actuelle, double score_actuel, 
 int* meilleure_solution, double &meilleur_score, bool* contient){
     if(p==N){

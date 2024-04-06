@@ -10,51 +10,43 @@
 
 using namespace std;
 
-double glouton1(int N, vector<Arete*> &aretes, int x0){//Liste d'arêtes TRIEE
-    vector<Arete*>* solution = new vector<Arete*>;
-    unordered_set<int> sommet_explores;
-    sommet_explores.insert(x0);
-    int sommet_actuel = x0;
-    while(solution->size()!=N-1){
-        for(int i=0;i<aretes.size();i++){
-            Arete* a = aretes.at(i);
-            if(a->sommet1==sommet_actuel && sommet_explores.find(a->sommet2)==sommet_explores.end()){
-                sommet_actuel = a->sommet2;
-                sommet_explores.insert(sommet_actuel);
-                solution->push_back(a);
-                break;
-            }
-            if(a->sommet2==sommet_actuel && sommet_explores.find(a->sommet1)==sommet_explores.end()){
-                sommet_actuel = a->sommet1;
-                sommet_explores.insert(sommet_actuel);
-                solution->push_back(a);
-                break;
+int* glouton1(int N, double* distances, int x0){
+    int sommet_actuel = 0;
+    int* solution = new int[N+1];
+    int* sommets_visites = new int[N]();
+    sommets_visites[x0] = 1;
+    solution[N] = x0;
+    solution[0] = x0;
+    for(int i = 1; i <N; i++){
+        double min_dist =100000000;
+        int min_sommet = -1;
+        for(int j=0; j <N; j++){
+            if(sommet_actuel!=j && sommets_visites[j]==0 && distances[sommet_actuel*N+j]<min_dist){
+                min_dist = distances[sommet_actuel*N+j];
+                min_sommet = j;
             }
         }
+        sommets_visites[min_sommet] = 1;
+        solution[i] = min_sommet;
+        sommet_actuel = min_sommet;
     }
-    for(int i=0;i<aretes.size();i++){
-        Arete* a = aretes.at(i);
-        if(a->sommet1==x0 && a->sommet2==sommet_actuel){
-            solution->push_back(a);
-            return valeur_solution(*solution);
-        }
-        if(a->sommet2==x0 && a->sommet1==sommet_actuel){
-            solution->push_back(a);
-            return valeur_solution(*solution);
-        }
-    }
-    return -1;
+    delete sommets_visites;
+    return solution;
+
+
 }
 
-double glouton2(int N, vector<Arete*> &aretes){
-    double solution = glouton1(N, aretes, 0);
+int* glouton2(int N, double* matrice){
+    int* s_finale = glouton1(N, matrice, 0);
+    double valeur_sol = valeur_solution(N, s_finale, matrice);
     for(int x0=1;x0<N;x0++){
-        double s = glouton1(N, aretes, x0);
-        if (s < solution){
-            solution = s;
+        int* s = glouton1(N, matrice, x0);
+        if (valeur_solution(N, s, matrice) < valeur_sol){
+            s_finale = s;
+            valeur_sol = valeur_solution(N, s, matrice);
         }
     }
-    return solution;
+    return s_finale;
 }
 
 #endif

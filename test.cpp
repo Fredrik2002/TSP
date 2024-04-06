@@ -76,7 +76,7 @@ int main(){
         aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
-    int N = 14;
+    int N = 10;
     int m = N*(N-1)/2;
 
     for(int i=0;i<1;i++){
@@ -90,33 +90,26 @@ int main(){
         // SOLUTIONS APPROCHEES
         double g1 = glouton1(N, aretes, 0);
         double g2 = glouton2(N, aretes);
+        double g3 = valeur_solution(N, glouton1_2(N, matrice, 0), matrice);
         double approx1 = deux_approx(N, aretes);
         double approx2 = christofides(N, aretes);
 
         double best_approx = (g2<approx2) ? g2 : approx2;
-
-        cout << best_approx << endl;
+        int* solution = glouton1(N, matrice, 0);
+        for(int i=0;i<N;i++){
+            for(int j=0;j<N;j++){
+                cout << matrice[i*N+j] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+        for(int i=0;i<N+1;i++){
+            cout << solution[i] << " ";
+        }
+        cout << endl;
+        cout << "g1 :" << g1 << " g3 : " << g3 << endl;
         
-
-        //SOLUTIONS EXACTES
-        
-        
-        auto startTime = high_resolution_clock::now();
-        tuple<double, int> couple = lance_profondeur(N, aretes2,  best_approx);
-        duration<float> d2 = high_resolution_clock::now()-startTime;
-        double s1 = get<0>(couple);
-        int nb_noeuds = get<1>(couple);
-        cout << " " << d2.count() <<"s, "<< nb_noeuds << "noeuds " <<  s1 << endl;
-
-
-
-        startTime = high_resolution_clock::now();
-        vector<vector<int>> state(N);
-        for(auto & neighbors : state)
-            neighbors = vector<int>((1 << N) - 1, 100000);
-        double h_k = held_karp(N, matrice, 0,1, state);
-        duration<float> d4 = high_resolution_clock::now()-startTime;
-        cout << " " << d4.count() <<"s, "<< endl;
+       
     }
     
     // Close the file

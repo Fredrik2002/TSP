@@ -12,6 +12,7 @@
 #include "christofides.h"
 #include "branch_and_bound2.h"
 #include "held-karp.h"
+#include "EvalPerf.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -86,6 +87,7 @@ int main(){
     my_file_approx << N << "\n";
     my_file_exacte << N << "\n";
     Arete* aretes2 = new Arete[m];
+    EvalPerf PE;
     while(i<100){
         vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
         double* matrice = matrice_distance(N, aretes);
@@ -93,8 +95,10 @@ int main(){
             aretes2[i] = *(aretes.at(i));
         }
         // SOLUTIONS APPROCHEES
-        double g1 = glouton1(N, aretes, 0);
-        double g2 = glouton2(N, aretes);
+        
+        double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
+        int* solution_gloutonne = glouton2(N, matrice);
+        double g2 = valeur_solution(N, solution_gloutonne, matrice);
         double approx1 = deux_approx(N, aretes);
         double approx2 = christofides(N, aretes);
 
@@ -103,47 +107,58 @@ int main(){
 
         //SOLUTIONS EXACTES
         
-        auto startTime = high_resolution_clock::now();
-        double backtrck = backtracking(N, aretes);
-        duration<float> d1 = high_resolution_clock::now()-startTime;
-        cout << d1.count() << "s ";
+        PE.start();
+        double backtrck = 0;//backtracking(N, aretes);
+        PE.stop();
+        double d1 = PE.seconds();
+        cout << d1 << "s ";
+        PE.clear();
         
-        startTime = high_resolution_clock::now();
+        PE.start();
         tuple<double, int> couple = lance_profondeur(N, aretes2, best_approx);
-        duration<float> d2 = high_resolution_clock::now()-startTime;
+        PE.stop();
         double s1 = get<0>(couple);
         int nb_noeuds = get<1>(couple);
-        cout << d2.count() << "s, "<<nb_noeuds<<" noeuds ";
+        double d2 = PE.seconds();
+        cout << d2 << "s, "<<nb_noeuds<<" noeuds ";
+        PE.clear();
         
 
-        startTime = high_resolution_clock::now();
+        PE.start();
         tuple<double, int> couple2= lance_profondeur3(N, matrice, best_approx);
-        duration<float> d3 = high_resolution_clock::now()-startTime;
+        PE.stop();
         int nb_noeuds2 = get<1>(couple2);
-        cout <<d3.count() <<"s, "<<nb_noeuds2<<" noeuds ";
         double s2 = get<0>(couple2);
+        double d3 = PE.seconds();
+        cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds ";
+        PE.clear();
+        
         
 
-        startTime = high_resolution_clock::now();
+        PE.start();
         vector<vector<int>> state(N);
         for(auto & neighbors : state)
             neighbors = vector<int>((1 << N) - 1, 100000);
         double h_k = held_karp(N, matrice, 0,1, state);
-        duration<float> d4 = high_resolution_clock::now()-startTime;
-        cout << " " << d4.count() <<"s, "<< endl;
-        if(h_k!=s1){
+        PE.stop();
+        double d4 = PE.seconds();
+        cout << " " << d4 <<"s, "<< endl;
+        PE.clear();
+        if(!(g2<=g1)){
             
-            for(Arete *a : aretes){
-                a->afficher();
+            for(int i=0;i<m;i++){
+                aretes2[i].afficher();
             }
             cout << "Branch & Bound1 :" << s1 <<endl;
             cout << "backtrck :" << backtrck<<endl;
             cout << "Branch & Bound 2 :" << s2<<endl;
+            cout << "g1 :" << g1 << " g2 : " << g2 << endl;
+            break;
         }
         else{
             my_file_approx<<backtrck<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<"\n";
-            my_file_exacte <<d1.count() <<","<< d2.count()<< ","<<nb_noeuds<<",";
-            my_file_exacte << d3.count() <<","<<nb_noeuds2<<","<<d4.count()<<",\n";
+            my_file_exacte <<d1 <<","<< d2<< ","<<nb_noeuds<<",";
+            my_file_exacte << d3 <<","<<nb_noeuds2<<","<<d4<<",\n";
         }
         i++;
     }
