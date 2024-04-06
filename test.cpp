@@ -104,11 +104,11 @@ int main(){
 
         cout << g2 << " " << approx2 << endl;
 
-        int* solution_deux_opt1 = deux_opt1(N, solution_gloutonne, matrice);
-        int* solution_deux_opt2 = deux_opt2(N, solution_gloutonne, matrice);
-        int* solution_deux_opt3 = deux_opt3(N, solution_gloutonne, matrice);
+        int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
+        int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
+        int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
 
-        double backtrck = backtracking(N, aretes);
+        double backtrck = 4578;//backtracking(N, aretes);
 
         int* solution = glouton1(N, matrice, 0);
         for(int i=0;i<N;i++){
@@ -123,11 +123,11 @@ int main(){
         }
         cout << endl;
         for(int i=0;i<N+1;i++){
-            cout << solution_gloutonne[i] << " ";
+            cout << solution_deux_opt1[i] << " ";
         }
         cout << endl;
         for(int i=0;i<N+1;i++){
-            cout << solution_deux_opt1[i] << " ";
+            cout << solution_deux_opt2[i] << " ";
         }
         cout << endl;
         for(int i=0;i<N+1;i++){
