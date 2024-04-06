@@ -13,9 +13,9 @@
 #include "branch_and_bound2.h"
 #include "held-karp.h"
 #include "EvalPerf.h"
+#include "2-opt.h"
 
 using namespace std;
-using namespace std::chrono;
 
 double distance_de_manhattan(int xi, int xj, int yi, int yj){
     //Retourne la distance de Manhattan entre les points (xi, yi) et (xj, yj)
@@ -89,7 +89,7 @@ int main(){
     Arete* aretes2 = new Arete[m];
     EvalPerf PE;
     while(i<100){
-        vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
+        vector<Arete*> aretes = genere_instances(N, 1000, 1000, distance_de_manhattan);
         double* matrice = matrice_distance(N, aretes);
         for(int i=0;i<m;i++){
             aretes2[i] = *(aretes.at(i));
@@ -97,12 +97,22 @@ int main(){
         // SOLUTIONS APPROCHEES
         
         double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
+        
         int* solution_gloutonne = glouton2(N, matrice);
         double g2 = valeur_solution(N, solution_gloutonne, matrice);
-        double approx1 = deux_approx(N, aretes);
-        double approx2 = christofides(N, aretes);
 
-        double best_approx = (g2<approx2) ? g2 : approx2;
+        double approx1 = deux_approx(N, aretes);
+
+        int* solution_christofides = christofides(N, aretes);
+        double approx2 = valeur_solution(N, solution_christofides, matrice);
+
+        int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
+        double valeur_best_approx = valeur_solution(N, best_approx, matrice);
+
+        int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
+        int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
+        int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
+        
         
 
         //SOLUTIONS EXACTES
@@ -111,26 +121,33 @@ int main(){
         double backtrck = 0;//backtracking(N, aretes);
         PE.stop();
         double d1 = PE.seconds();
-        cout << d1 << "s ";
+        // cout << d1 << "s ";
         PE.clear();
         
         PE.start();
-        tuple<double, int> couple = lance_profondeur(N, aretes2, best_approx);
+        tuple<double, int> couple = lance_profondeur(N, aretes2, valeur_best_approx);
         PE.stop();
         double s1 = get<0>(couple);
         int nb_noeuds = get<1>(couple);
         double d2 = PE.seconds();
-        cout << d2 << "s, "<<nb_noeuds<<" noeuds ";
+        // cout << d2 << "s, "<<nb_noeuds<<" noeuds ";
         PE.clear();
+        
+        cout << "Optimal :" << s1 << endl;
+        cout << "Glouton :" << g2 << " Christofides : " << approx2 << endl;
+        cout << "Deux opt1 " << valeur_solution(N, solution_deux_opt1, matrice) << endl;
+        cout << "Deux opt2 " << valeur_solution(N, solution_deux_opt2, matrice) << endl;
+        cout << "Deux opt3 " << valeur_solution(N, solution_deux_opt3, matrice) << endl;
+        cout << endl;
         
 
         PE.start();
-        tuple<double, int> couple2= lance_profondeur3(N, matrice, best_approx);
+        tuple<double, int> couple2= lance_profondeur3(N, matrice, valeur_best_approx);
         PE.stop();
         int nb_noeuds2 = get<1>(couple2);
         double s2 = get<0>(couple2);
         double d3 = PE.seconds();
-        cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds ";
+        //cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds ";
         PE.clear();
         
         
@@ -142,9 +159,10 @@ int main(){
         double h_k = held_karp(N, matrice, 0,1, state);
         PE.stop();
         double d4 = PE.seconds();
-        cout << " " << d4 <<"s, "<< endl;
+        //cout << " " << d4 <<"s, "<< endl;
         PE.clear();
-        if(!(g2<=g1)){
+        if(valeur_solution(N, solution_deux_opt1, matrice)>valeur_solution(N, solution_deux_opt2, matrice) ||
+        valeur_solution(N, solution_deux_opt1, matrice)>valeur_solution(N, solution_deux_opt3, matrice)){
             
             for(int i=0;i<m;i++){
                 aretes2[i].afficher();

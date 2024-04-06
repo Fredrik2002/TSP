@@ -107,7 +107,7 @@ void shortcut(int N, vector<int> &circuit){
     circuit.erase(circuit.begin()+N, circuit.end()-1);
 }
 
-double christofides(int N, vector<Arete*> &aretes){
+int* christofides(int N, vector<Arete*> &aretes){
     double* distances = matrice_distance(N, aretes);
     vector<Arete*> * solution = new vector<Arete*>();
     vector<Arete*> ACPM = kruskal(N+1, aretes, -1);
@@ -119,10 +119,11 @@ double christofides(int N, vector<Arete*> &aretes){
     }
     vector<int> circ = circuit_eulerien(ACPM);
     shortcut(N, circ);
-    for(int i=0;i<N;i++){
-        solution->push_back(new Arete(circ.at(i), circ.at(i+1), distances[circ.at(i)*N+circ.at(i+1)], 1));
+    int* sol = new int[N+1];
+    for(int i=0;i<N+1;i++){
+        sol[i] = circ.at(i);
     }
-    return valeur_solution(*solution);
+    return sol;
 }
 
 #endif

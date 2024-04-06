@@ -10,6 +10,7 @@
 #include "branch_and_bound2.h"
 #include "glouton.h"
 #include "held-karp.h"
+#include "2-opt.h"
 
 
 
@@ -76,7 +77,7 @@ int main(){
         aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
-    int N = 10;
+    int N = 15;
     int m = N*(N-1)/2;
 
     for(int i=0;i<1;i++){
@@ -88,13 +89,27 @@ int main(){
         double* matrice = matrice_distance(N, aretes);
         
         // SOLUTIONS APPROCHEES
-        double g1 = glouton1(N, aretes, 0);
-        double g2 = glouton2(N, aretes);
-        double g3 = valeur_solution(N, glouton1_2(N, matrice, 0), matrice);
-        double approx1 = deux_approx(N, aretes);
-        double approx2 = christofides(N, aretes);
+        double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
+        
+        int* solution_gloutonne = glouton2(N, matrice);
+        double g2 = valeur_solution(N, solution_gloutonne, matrice);
 
-        double best_approx = (g2<approx2) ? g2 : approx2;
+        double approx1 = deux_approx(N, aretes);
+
+        int* solution_christofides = christofides(N, aretes);
+        double approx2 = valeur_solution(N, solution_christofides, matrice);
+
+        int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
+        double valeur_best_approx = valeur_solution(N, best_approx, matrice);
+
+        cout << g2 << " " << approx2 << endl;
+
+        int* solution_deux_opt1 = deux_opt1(N, solution_gloutonne, matrice);
+        int* solution_deux_opt2 = deux_opt2(N, solution_gloutonne, matrice);
+        int* solution_deux_opt3 = deux_opt3(N, solution_gloutonne, matrice);
+
+        double backtrck = backtracking(N, aretes);
+
         int* solution = glouton1(N, matrice, 0);
         for(int i=0;i<N;i++){
             for(int j=0;j<N;j++){
@@ -104,11 +119,26 @@ int main(){
         }
         cout << endl;
         for(int i=0;i<N+1;i++){
-            cout << solution[i] << " ";
+            cout << solution_christofides[i] << " ";
         }
         cout << endl;
-        cout << "g1 :" << g1 << " g3 : " << g3 << endl;
-        
+        for(int i=0;i<N+1;i++){
+            cout << solution_gloutonne[i] << " ";
+        }
+        cout << endl;
+        for(int i=0;i<N+1;i++){
+            cout << solution_deux_opt1[i] << " ";
+        }
+        cout << endl;
+        for(int i=0;i<N+1;i++){
+            cout << solution_deux_opt3[i] << " ";
+        }
+        cout << endl;
+        cout << "Glouton :" << g2 << " Christofides : " << valeur_solution(N, solution_christofides, matrice) << endl;
+        cout << "Deux opt1 " << valeur_solution(N, solution_deux_opt1, matrice) << endl;
+        cout << "Deux opt2 " << valeur_solution(N, solution_deux_opt2, matrice) << endl;
+        cout << "Deux opt3 " << valeur_solution(N, solution_deux_opt3, matrice) << endl;
+        cout << "Backtracking :" << backtrck << endl;
        
     }
     
