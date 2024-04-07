@@ -21,7 +21,6 @@ int fonction_de_hachage(int a, int b, int N){
 }
 
 
-
 class Arete{
     public:
     int sommet1, sommet2, id;
@@ -63,11 +62,12 @@ class Noeud{
         static int x0;
         static int N, m; // Nombre de sommets, Nombre d'aretes
 
-        Arete* aretes; // Listes des arêtes disponibles
+        Arete* aretes; // Listes des arêtes disponibles (Redondant)
         int* solution; // ACPM
         int* degres; // Tableau des degrés de chaque sommets
         bool solution_realisable;
         double evaluation; // Poids de l'ACPM
+        int sommet_degre_max; // Sommet de degré maximum
         string hashcode;
         
 
@@ -93,13 +93,14 @@ class Noeud{
         solution = new int[N];
         solution[N-3] = -1;
         hashcode = n.hashcode;
+        evaluation = 0;
         hashcode[a]='1';
         if(set.find(hashcode)==set.end()){
             evalue();
             set.insert(hashcode); 
         } 
         else {
-            evaluation = 10000000;
+            evaluation = 1000000000;
         }
     }
 
@@ -124,25 +125,15 @@ class Noeud{
     void evalue() {
         calcule_solution();
         if(solution[N-3]==-1) return;
-        for(int i=0;i<N;i++){
-            Arete a = aretes[solution[i]];
-            degres[a.sommet1]+=1;
-            degres[a.sommet2]+=1;
-        }
-        int sommet_max = max_element(degres, degres+N)-&degres[0];
+        sommet_degre_max = max_element(degres, degres+N)-&degres[0];
         int sommet_min = min_element(degres, degres+N)-&degres[0];
-        double somme = 0;
-        for(int i=0;i<N;i++){
-            somme+=aretes[solution[i]].poids;
-        }
-        evaluation = somme;
-        if(degres[sommet_max]==2 && degres[sommet_min]==2){ //Connexe + tous les sommets de degré 2 => solution réalisable
+        
+        if(degres[sommet_degre_max]==2 && degres[sommet_min]==2){ //Connexe + tous les sommets de degré 2 => solution réalisable
             solution_realisable = true;
         }
     }
 
-    void kruskal(){//Prend en paramètre la liste TRIEE des arêtes
-        //N = le sommet de sommets (en comptant x0)
+    void kruskal(){
         int parent[N];
         int p=0;
         for(int i=0;i<N;i++){
@@ -156,6 +147,9 @@ class Noeud{
             if (r1!=r2 && a.sommet1!=x0 && a.sommet2!=x0 && hashcode[i]=='0'){ // On peut prendre l'arête
                 parent[r2] = r1; // Lie les composantes connexes
                 solution[p] = i;
+                degres[a.sommet1]++;
+                degres[a.sommet2]++;
+                evaluation += a.poids;
                 p++;
             }
             if(p==N-2) break;
@@ -170,6 +164,9 @@ class Noeud{
             Arete a = aretes[i];
             if((a.sommet1 == x0 || a.sommet2 == x0) && hashcode[i]=='0'){
                 aretes_retirees.push_back(i);
+                degres[a.sommet1]++;
+                degres[a.sommet2]++;
+                evaluation += a.poids;
             }
             i++;
         }
@@ -188,7 +185,7 @@ vector<int> sommet_a_separer(int N, Noeud &n){//Renvoie les arêtes à retirer
     //(Les arêtes ont toutes un sommet en commun)
     // STRATEGIE DE SEPARATION : A ETUDIER (On prend le sommet de plus haut degré pour l'instant)
     
-    int sommet = max_element(n.degres, n.degres+N)-&(n.degres[0]);
+    int sommet = n.sommet_degre_max;
     vector<int> aretes_a_brancher;
     for(int i=0;i<N;i++){
         Arete a = n.aretes[n.solution[i]];

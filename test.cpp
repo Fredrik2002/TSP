@@ -77,15 +77,17 @@ int main(){
         aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
-    int N = 15;
+    int N = 150;
     int m = N*(N-1)/2;
 
     for(int i=0;i<1;i++){
+        vector<Arete*> aretes = genere_instances(N, 10000, 10000, distance_de_manhattan);
         Arete* aretes2 = new Arete[m];
         int x0 = 0;
         for(int i=0;i<m;i++){
             aretes2[i] = *aretes.at(i);
         }
+        
         double* matrice = matrice_distance(N, aretes);
         
         // SOLUTIONS APPROCHEES
@@ -108,14 +110,12 @@ int main(){
         int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
         int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
 
-        double backtrck = 4578;//backtracking(N, aretes);
-
         int* solution = glouton1(N, matrice, 0);
         for(int i=0;i<N;i++){
             for(int j=0;j<N;j++){
-                cout << matrice[i*N+j] << " ";
+                //cout << matrice[i*N+j] << " ";
             }
-            cout << endl;
+            //cout << endl;
         }
         cout << endl;
         for(int i=0;i<N+1;i++){
@@ -138,7 +138,6 @@ int main(){
         cout << "Deux opt1 " << valeur_solution(N, solution_deux_opt1, matrice) << endl;
         cout << "Deux opt2 " << valeur_solution(N, solution_deux_opt2, matrice) << endl;
         cout << "Deux opt3 " << valeur_solution(N, solution_deux_opt3, matrice) << endl;
-        cout << "Backtracking :" << backtrck << endl;
        
     }
     

@@ -67,7 +67,7 @@ double (*distance)(int, int, int, int)){
 }
 
 int main(){
-    srand(time(NULL));
+    //srand(time(NULL));
     /*Les fonctions vont renvoyer des tuples :
         - La liste des arêtes de la solution
         - Le nombre de noeuds explorés
@@ -80,7 +80,7 @@ int main(){
     my_file_approx.open("main1/datas_approx.csv");
     my_file_exacte.open("main1/datas_exacte.csv");
     instances.open("main1/instances.txt");
-    my_file_approx << "Solution exacte, Solution Gloutonne 1, Solution Gloutonne 2, Solution 2-Approximation, Solution 3/2-Approximation \n";
+    my_file_approx << "Solution exacte, Solution Gloutonne 1, Solution Gloutonne 2, Solution 2-Approximation, Solution 3/2-Approximation, Solution 2-opt \n";
     my_file_exacte << "Temps de résolution Backtracking, Temps de résolution Branch & Bound1 (Orienté arête),"
     "Nombre de noeuds explorés Branch & Bound1, Temps de résolution Branch & Bound2 (Orienté sommet),"
     "Nombre de noeuds explorés Branch & Bound2, Temps de résolution programmation dynamique, Temps de résolution PLNE \n";
@@ -88,7 +88,7 @@ int main(){
     my_file_exacte << N << "\n";
     Arete* aretes2 = new Arete[m];
     EvalPerf PE;
-    while(i<100){
+    while(i<50){
         vector<Arete*> aretes = genere_instances(N, 1000, 1000, distance_de_manhattan);
         double* matrice = matrice_distance(N, aretes);
         for(int i=0;i<m;i++){
@@ -112,8 +112,8 @@ int main(){
         int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
         int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
 
-        double valeur_best_approx = min(valeur_solution(solution_deux_opt1), valeur_solution(solution_deux_opt2));
-        valeur_best_approx = min(valeur_best_approx, valeur_solution(solution_deux_opt3));
+        double valeur_best_approx = min(valeur_solution(N, solution_deux_opt1, matrice), valeur_solution(N, solution_deux_opt2, matrice));
+        valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
         
         
 
@@ -155,7 +155,7 @@ int main(){
         cout << " " << d4 <<"s, "<< endl;
         PE.clear();
 
-        if(false){
+        if(s1!=s2){
             
             for(int i=0;i<m;i++){
                 aretes2[i].afficher();
@@ -167,7 +167,7 @@ int main(){
             break;
         }
         else{
-            my_file_approx<<backtrck<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<"\n";
+            my_file_approx<<backtrck<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
             my_file_exacte <<d1 <<","<< d2<< ","<<nb_noeuds<<",";
             my_file_exacte << d3 <<","<<nb_noeuds2<<","<<d4<<",\n";
         }
