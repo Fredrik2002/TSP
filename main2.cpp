@@ -13,6 +13,8 @@
 #include "christofides.h"
 #include "branch_and_bound2.h"
 #include "held-karp.h"
+#include "2-opt.h"
+#include "EvalPerf.h"
 using namespace std;
 
 double distance_de_manhattan(int xi, int xj, int yi, int yj){
@@ -28,7 +30,7 @@ double distance_euclidienne(int xi, int xj, int yi, int yj){
 vector<Arete*> genere_instances(int N, int x_max, int y_max, 
 double (*distance)(int, int, int, int)){ 
     ofstream instances;
-    instances.open("main2/instances.txt", ios::app);
+    instances.open("main2/instances/"+to_string(N)+".txt", ios::app);
     int* X = new int[N];
     int* Y = new int[N];
     for(int i=0;i<N;i++){
@@ -57,78 +59,102 @@ double (*distance)(int, int, int, int)){
 
 int main(){
     srand(time(NULL));
+    double TIMEOUT = 60;
+    EvalPerf PE;
     
     ofstream my_file_approx, my_file_exacte, instances;
 
     my_file_approx.open("main2/datas_approx.csv");
     my_file_exacte.open("main2/datas_exacte.csv");
-    instances.open("main2/instances.txt");
     my_file_approx << "N, Solution exacte, Solution Gloutonne 1, Solution Gloutonne 2, Solution 2-Approximation, Solution 3/2-Approximation \n";
-    my_file_exacte << "N, Temps de résolution Backtracking, Temps de résolution Branch & Bound1 (Orienté arête),"
+    my_file_exacte << "N, Temps de résolution Branch & Bound1 (Orienté arête),"
     "Nombre de noeuds explorés Branch & Bound1, Temps de résolution Branch & Bound2 (Orienté sommet),"
     "Nombre de noeuds explorés Branch & Bound2, Temps de résolution programmation dynamique, Temps de résolution PLNE \n";
+
+    int liste_des_N[] = {10,20,30,40,50,75,100,150,200,300,400,500,1000};
     
-    for(int N=5;N<=20;N++){
+    for(int i = 0; i < 13 ;i++){
+        int N = liste_des_N[i];
         int m = N*(N-1)/2;
         Noeud2::N = N;
         Noeud2::m = m;
         Arete* aretes2 = new Arete[m];
-        for(int i=0;i<100;i++){
-            vector<Arete*> aretes = genere_instances(N, 100, 100, distance_de_manhattan);
+        for(int j=0;j<10;j++){
+            cout << N << " " << i << " " << j << " ";
+            vector<Arete*> aretes = genere_instances(N, 10000, 10000, distance_de_manhattan);
             double* matrice = matrice_distance(N, aretes);
             Noeud2::distances = matrice;
-            for(int i=0;i<m;i++){
-                aretes2[i] = *(aretes.at(i));
+            for(int k=0;k<m;k++){
+                aretes2[k] = *(aretes.at(k));
             }
             // SOLUTIONS APPROCHEES
-            double g1 = glouton1(N, aretes, 0);
-            double g2 = glouton2(N, aretes);
-            double approx1 = deux_approx(N, aretes);
-            double approx2 = christofides(N, aretes);
+        double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
+        
+        int* solution_gloutonne = glouton2(N, matrice);
+        double g2 = valeur_solution(N, solution_gloutonne, matrice);
 
-            
-            clock_t startTime = clock();
-            double backtrck = backtracking(N, aretes);
-            double t1 = (double (clock()-startTime))/1000;
-            cout << t1 << "s ";
-            
-            startTime = clock();
-            tuple<double, int> couple = lance_profondeur(N, aretes2);
-            double t2 = (double (clock()-startTime))/1000;
-            double s1 = get<0>(couple);
-            int nb_noeuds = get<1>(couple);
-            cout << t2 << "s, "<<nb_noeuds<<" noeuds ";
-            
-            
-            startTime = clock();
-            tuple<double, int> couple2 = lance_profondeur3(N, matrice, g2);
-            double t3 = (double (clock()-startTime))/1000;
-            double s2 = get<0>(couple2);
-            int nb_noeuds2 = get<1>(couple2);
-            cout <<t3 <<"s, "<<nb_noeuds2<<" noeuds "<< endl;
-            
+        double approx1 = deux_approx(N, aretes);
 
-            startTime = clock();
-            double held_karp = 0;
-            double t4 = (double (clock()-startTime))/1000;
+        int* solution_christofides = christofides(N, aretes);
+        double approx2 = valeur_solution(N, solution_christofides, matrice);
 
-            if(abs(s2-s1)>0.001){
+        int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
+        
+
+        int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
+        int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
+        int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
+
+        double valeur_best_approx = min(valeur_solution(N, solution_deux_opt1, matrice), valeur_solution(N, solution_deux_opt2, matrice));
+        valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
+        
+        
+        PE.start();
+        tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
+        PE.stop();
+        double s1 = get<0>(couple);
+        int nb_noeuds = get<1>(couple);
+        double d2 = PE.seconds();
+        cout << d2 << "s, "<<nb_noeuds<<" noeuds ";
+        PE.clear();
+        
+
+        PE.start();
+        tuple<double, int> couple2 = lance_profondeur3(N, matrice, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
+        PE.stop();
+        int nb_noeuds2 = get<1>(couple2);
+        double s2 = get<0>(couple2);
+        double d3 = PE.seconds();
+        cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds ";
+        PE.clear();
+        
+        
+        PE.start();
+        vector<vector<int>> state(N);
+        for(auto & neighbors : state)
+            neighbors = vector<int>((1 << N) - 1, 100000);
+        double h_k = held_karp(N, matrice, 0,1, state, std::chrono::high_resolution_clock::now(), TIMEOUT);
+        PE.stop();
+        double d4 = PE.seconds();
+        cout << " " << d4 <<"s, "<< endl;
+        PE.clear();
+
+            if(false){
                 
                 for(Arete *a : aretes){
                     a->afficher();
                 }
                 cout << "Branch & Bound1 :" << s1 <<endl;
-                cout << "backtrck :" << backtrck<<endl;
                 cout << "Branch & Bound 2 :" << s2<<endl;
             }
             else{
-                //my_file_approx<<backtrck<<"," << valeur_solution(*g1) <<","<<valeur_solution(*g2)<<","<< valeur_solution(*approx1)<<","<<valeur_solution(*approx2)<<"\n";
-                my_file_exacte <<t1 <<","<< t2<< ","<<nb_noeuds<<",";
-                my_file_exacte << t3 <<","<<nb_noeuds2<<","<<t4<<",\n";
+                my_file_approx<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
+                my_file_exacte <<N << "," << d2<< ","<<nb_noeuds<<",";
+                my_file_exacte << d3 <<","<<nb_noeuds2<<","<<d4<<",\n";
             }
-            i++;
         }
         delete[] aretes2;
+        cout << "Termine pour N=" << N << endl;
     }
     
     my_file_approx.close();

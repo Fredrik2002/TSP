@@ -7,7 +7,8 @@
 using namespace std;
 
 
-double held_karp(int N, double* &graph, int pos, int visited, vector<vector<int>>& state) {
+double held_karp(int N, double* &graph, int pos, int visited, vector<vector<int>>& state,
+std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double timeout) {
     if(visited == ((1 << N) - 1))
         return graph[pos*N]; 
 
@@ -17,7 +18,10 @@ double held_karp(int N, double* &graph, int pos, int visited, vector<vector<int>
     for(int i = 0; i < N; ++i) {
         if(i == pos || (visited & (1 << i)))
             continue;
-        int distance = graph[pos*N+i] + held_karp(N, graph, i, visited | (1 << i), state);
+        if(std::chrono::duration<double>(std::chrono::high_resolution_clock::now()-temps_depart).count()>timeout){
+                return -1;
+            }
+        int distance = graph[pos*N+i] + held_karp(N, graph, i, visited | (1 << i), state, temps_depart, timeout);
         if(distance < state[pos][visited])
             state[pos][visited] = distance;
     }

@@ -11,6 +11,7 @@
 #include "glouton.h"
 #include "held-karp.h"
 #include "2-opt.h"
+#include "EvalPerf.h"
 
 
 
@@ -77,8 +78,9 @@ int main(){
         aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
-    int N = 150;
+    int N = 20;
     int m = N*(N-1)/2;
+    EvalPerf PE;
 
     for(int i=0;i<1;i++){
         vector<Arete*> aretes = genere_instances(N, 10000, 10000, distance_de_manhattan);
@@ -89,55 +91,18 @@ int main(){
         }
         
         double* matrice = matrice_distance(N, aretes);
+
+        double TIMEOUT = 60;
         
-        // SOLUTIONS APPROCHEES
-        double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
-        
-        int* solution_gloutonne = glouton2(N, matrice);
-        double g2 = valeur_solution(N, solution_gloutonne, matrice);
-
-        double approx1 = deux_approx(N, aretes);
-
-        int* solution_christofides = christofides(N, aretes);
-        double approx2 = valeur_solution(N, solution_christofides, matrice);
-
-        int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
-        double valeur_best_approx = valeur_solution(N, best_approx, matrice);
-
-        cout << g2 << " " << approx2 << endl;
-
-        int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
-        int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
-        int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
-
-        int* solution = glouton1(N, matrice, 0);
-        for(int i=0;i<N;i++){
-            for(int j=0;j<N;j++){
-                //cout << matrice[i*N+j] << " ";
-            }
-            //cout << endl;
-        }
-        cout << endl;
-        for(int i=0;i<N+1;i++){
-            cout << solution_christofides[i] << " ";
-        }
-        cout << endl;
-        for(int i=0;i<N+1;i++){
-            cout << solution_deux_opt1[i] << " ";
-        }
-        cout << endl;
-        for(int i=0;i<N+1;i++){
-            cout << solution_deux_opt2[i] << " ";
-        }
-        cout << endl;
-        for(int i=0;i<N+1;i++){
-            cout << solution_deux_opt3[i] << " ";
-        }
-        cout << endl;
-        cout << "Glouton :" << g2 << " Christofides : " << valeur_solution(N, solution_christofides, matrice) << endl;
-        cout << "Deux opt1 " << valeur_solution(N, solution_deux_opt1, matrice) << endl;
-        cout << "Deux opt2 " << valeur_solution(N, solution_deux_opt2, matrice) << endl;
-        cout << "Deux opt3 " << valeur_solution(N, solution_deux_opt3, matrice) << endl;
+        PE.start();
+        vector<vector<int>> state(N);
+        for(auto & neighbors : state)
+            neighbors = vector<int>((1 << N) - 1, 100000);
+        double h_k = held_karp(N, matrice, 0,1, state, std::chrono::high_resolution_clock::now(), TIMEOUT);
+        PE.stop();
+        double d4 = PE.seconds();
+        cout << " " << d4 <<"s, "<< endl;
+        PE.clear();
        
     }
     

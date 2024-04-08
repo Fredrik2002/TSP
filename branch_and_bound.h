@@ -199,7 +199,8 @@ void insertion_dichotomique(vector<Noeud> &liste, Noeud &n){
     liste.insert(it, n);
 }
 
-void branch_and_bound_profondeur(Noeud* &n, int N, Arete* &aretes, double &borne_sup, int &nb_noeuds_explores){
+void branch_and_bound_profondeur(Noeud* &n, int N, Arete* &aretes, double &borne_sup, int &nb_noeuds_explores,
+std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double timeout){
     vector<int> branchement = sommet_a_separer(N, *n);
     for(int a : branchement){
         Noeud* n_fils = new Noeud(*n, a);
@@ -210,14 +211,21 @@ void branch_and_bound_profondeur(Noeud* &n, int N, Arete* &aretes, double &borne
                 borne_sup=n_fils->evaluation;
             }
             else{
-                branch_and_bound_profondeur(n_fils, N, aretes, borne_sup, nb_noeuds_explores);
+                branch_and_bound_profondeur(n_fils, N, aretes, borne_sup, nb_noeuds_explores, temps_depart, timeout);
             }
         }
         delete n_fils;
+        if(std::chrono::duration<double>(std::chrono::high_resolution_clock::now()-temps_depart).count()>timeout){
+            nb_noeuds_explores = -1;
+            borne_sup = -1;
+            return;
+        }
+        
     }
 }
 
-tuple<double, int> lance_profondeur(int N, Arete* &aretes, double borne_sup=13245678){
+tuple<double, int> lance_profondeur(int N, Arete* &aretes, 
+std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart,double timeout=100000, double borne_sup=13245678){
     tuple<double, int> to_return;
     int nb_noeuds_explores = 0;
     borne_sup+=0.0001;
@@ -233,7 +241,7 @@ tuple<double, int> lance_profondeur(int N, Arete* &aretes, double borne_sup=1324
     }
     Noeud* n = new Noeud(aretes, N, best_x0);
     if(n->solution_realisable) borne_sup=n->evaluation;
-    branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores);
+    branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores, temps_depart, timeout);
     return make_tuple(borne_sup, nb_noeuds_explores);
 }
 

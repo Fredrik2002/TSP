@@ -195,7 +195,8 @@ tuple<double, int> lance_profondeur2(int N, double* &distances, double borne_sup
     return make_tuple(borne_sup, nb_noeuds_explores);
 }
 
-void branch_and_bound3(Noeud2* &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
+void branch_and_bound3(Noeud2* &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores,
+std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double timeout){
     vector<Noeud2> liste_noeuds;
     for(int i=0;i<N;i++){
         if(n->sommets_places[i]==-1 && !(n->sommets_places[1]==-1 && i==2)){
@@ -206,18 +207,24 @@ void branch_and_bound3(Noeud2* &n, int &N, double* &distances, double &borne_sup
                     borne_sup=n_fils->evaluation;
                 }
                 else{
-                    branch_and_bound3(n_fils, N, distances, borne_sup, nb_noeuds_explores);
+                    branch_and_bound3(n_fils, N, distances, borne_sup, nb_noeuds_explores, temps_depart, timeout);
                 }
             }
             delete n_fils;
+            if(std::chrono::duration<double>(std::chrono::high_resolution_clock::now()-temps_depart).count()>timeout){
+                nb_noeuds_explores = -1;
+                borne_sup = -1;
+                return;
+            }
         }
     }
 }
 
-tuple<double, int> lance_profondeur3(int N, double* &distances, double borne_sup=123456798){
+tuple<double, int> lance_profondeur3(int N, double* &distances, 
+std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart,double timeout=100000,double borne_sup=123456798){
     int nb_noeuds_explores = 1;
     Noeud2* n = new Noeud2(N, distances);
-    branch_and_bound3(n, N, distances, borne_sup, nb_noeuds_explores);
+    branch_and_bound3(n, N, distances, borne_sup, nb_noeuds_explores, temps_depart, timeout);
     delete n;
     return make_tuple(borne_sup, nb_noeuds_explores);
 }

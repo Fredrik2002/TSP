@@ -91,8 +91,8 @@ int main(){
     while(i<50){
         vector<Arete*> aretes = genere_instances(N, 1000, 1000, distance_de_manhattan);
         double* matrice = matrice_distance(N, aretes);
-        for(int i=0;i<m;i++){
-            aretes2[i] = *(aretes.at(i));
+        for(int j=0;j<m;j++){
+            aretes2[j] = *(aretes.at(j));
         }
         // SOLUTIONS APPROCHEES
         double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
