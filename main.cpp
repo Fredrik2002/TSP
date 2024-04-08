@@ -63,6 +63,9 @@ double (*distance)(int, int, int, int)){
     instances << endl;
     instances.close();
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
+    delete[] X;
+    delete[] Y;
+    
     return aretes;
 }
 
@@ -74,8 +77,9 @@ int main(){
 */
 
     int i=0;
-    int N=15;
+    int N=14;
     int m = N*(N-1)/2;
+    double TIMEOUT = 6000000;
     ofstream my_file_approx, my_file_exacte, instances;
     my_file_approx.open("main1/datas_approx.csv");
     my_file_exacte.open("main1/datas_exacte.csv");
@@ -126,7 +130,7 @@ int main(){
         PE.clear();
         
         PE.start();
-        tuple<double, int> couple= lance_profondeur(N, aretes2, valeur_best_approx);
+        tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
         PE.stop();
         double s1 = get<0>(couple);
         int nb_noeuds = get<1>(couple);
@@ -136,7 +140,7 @@ int main(){
         
 
         PE.start();
-        tuple<double, int> couple2 = lance_profondeur3(N, matrice, valeur_best_approx);
+        tuple<double, int> couple2 = lance_profondeur3(N, matrice, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
         PE.stop();
         int nb_noeuds2 = get<1>(couple2);
         double s2 = get<0>(couple2);
@@ -149,7 +153,7 @@ int main(){
         vector<vector<int>> state(N);
         for(auto & neighbors : state)
             neighbors = vector<int>((1 << N) - 1, 100000);
-        double h_k = held_karp(N, matrice, 0,1, state);
+        double h_k = held_karp(N, matrice, 0,1, state, std::chrono::high_resolution_clock::now(), TIMEOUT);
         PE.stop();
         double d4 = PE.seconds();
         cout << " " << d4 <<"s, "<< endl;
