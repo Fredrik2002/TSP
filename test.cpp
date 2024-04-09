@@ -78,12 +78,11 @@ int main(){
         aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
-    int N = 20;
+    int N = 40;
     int m = N*(N-1)/2;
     EvalPerf PE;
 
-    for(int i=0;i<1;i++){
-        vector<Arete*> aretes = genere_instances(N, 10000, 10000, distance_de_manhattan);
+        //vector<Arete*> aretes = genere_instances(N, 10000, 10000, distance_de_manhattan);
         Arete* aretes2 = new Arete[m];
         int x0 = 0;
         for(int i=0;i<m;i++){
@@ -92,22 +91,34 @@ int main(){
         
         double* matrice = matrice_distance(N, aretes);
 
-        double TIMEOUT = 60;
+        double TIMEOUT = 50;
         
+        double s1, d2, s2, d3;
+        int nb_noeuds, nb_noeuds2;
+
+        // PE.start();
+        // tuple<double, int> couple2 = lance_profondeur3(N, matrice, std::chrono::high_resolution_clock::now(), TIMEOUT);
+        // PE.stop();
+        // nb_noeuds2 = get<1>(couple2);
+        // s2 = get<0>(couple2);
+        // d3 = PE.seconds();
+        // cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds ";
+        // PE.clear();
+
+
         PE.start();
-        vector<vector<int>> state(N);
-        for(auto & neighbors : state)
-            neighbors = vector<int>((1 << N) - 1, 100000);
-        double h_k = held_karp(N, matrice, 0,1, state, std::chrono::high_resolution_clock::now(), TIMEOUT);
+        cout << "Start" << endl;
+        tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT);
+        cout << "Finished" << endl;
         PE.stop();
-        double d4 = PE.seconds();
-        cout << " " << d4 <<"s, "<< endl;
+        s1 = get<0>(couple);
+        nb_noeuds = get<1>(couple);
+        d2 = PE.seconds();
+        cout << d2 << "s, "<<nb_noeuds<<" noeuds " << endl;
         PE.clear();
-       
-    }
     
     // Close the file
+    cout <<s1 << endl;
     fin.close();
-
-
+    cout << "Hello ???" << endl;
 }

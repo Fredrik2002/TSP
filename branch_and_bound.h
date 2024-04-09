@@ -61,6 +61,7 @@ class Noeud{
         static unordered_set<string> set; 
         static int x0;
         static int N, m; // Nombre de sommets, Nombre d'aretes
+        static int nb_noeuds_crees, nb_noeuds_detruits;
 
         Arete* aretes; // Listes des arêtes disponibles (Redondant)
         int* solution; // ACPM
@@ -75,6 +76,7 @@ class Noeud{
         unordered_set<string> s;
         set = s;
         aretes=ar;
+        nb_noeuds_crees++;
         solution_realisable=false;
         N = NB_SOMMETS;
         m=N*(N-1)/2;
@@ -88,6 +90,7 @@ class Noeud{
 
     Noeud(Noeud &n, int a){
         aretes=n.aretes;
+        nb_noeuds_crees++;
         solution_realisable=false;
         degres = new int[N]();
         solution = new int[N];
@@ -105,6 +108,7 @@ class Noeud{
     }
 
     ~Noeud(){
+        nb_noeuds_detruits++;
         delete[] degres;
         delete[] solution;
     }
@@ -218,14 +222,15 @@ std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double
         if(std::chrono::duration<double>(std::chrono::high_resolution_clock::now()-temps_depart).count()>timeout){
             nb_noeuds_explores = -1;
             borne_sup = -1;
+            cout << "Triggered" << endl;
+            cout << n_fils->hashcode << endl;
             return;
         }
-        
     }
 }
 
 tuple<double, int> lance_profondeur(int N, Arete* &aretes, 
-std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart,double timeout=100000, double borne_sup=13245678){
+std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double timeout=100000, double borne_sup=13245678){
     tuple<double, int> to_return;
     int nb_noeuds_explores = 0;
     borne_sup+=0.0001;
@@ -242,6 +247,8 @@ std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart,double 
     Noeud* n = new Noeud(aretes, N, best_x0);
     if(n->solution_realisable) borne_sup=n->evaluation;
     branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores, temps_depart, timeout);
+    cout << "Noeuds crées :" << n->nb_noeuds_crees << ", Noeuds détruits : " << n->nb_noeuds_detruits << endl;
+    delete n;
     return make_tuple(borne_sup, nb_noeuds_explores);
 }
 
@@ -250,6 +257,8 @@ unordered_set<string> Noeud::set = set2;
 int Noeud::N = 0;
 int Noeud::m = 0;
 int Noeud::x0 = 0;
+int Noeud::nb_noeuds_crees = 0;
+int Noeud::nb_noeuds_detruits = 0;
 
 
 

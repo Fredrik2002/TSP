@@ -66,12 +66,12 @@ int main(){
 
     my_file_approx.open("main2/datas_approx.csv");
     my_file_exacte.open("main2/datas_exacte.csv");
-    my_file_approx << "N, Solution exacte, Solution Gloutonne 1, Solution Gloutonne 2, Solution 2-Approximation, Solution 3/2-Approximation \n";
+    my_file_approx << "N, Solution exacte, Solution Gloutonne 1, Solution Gloutonne 2, Solution 2-Approximation, Solution 3/2-Approximation, Solution 2-OPT \n";
     my_file_exacte << "N, Temps de résolution Branch & Bound1 (Orienté arête),"
     "Nombre de noeuds explorés Branch & Bound1, Temps de résolution Branch & Bound2 (Orienté sommet),"
-    "Nombre de noeuds explorés Branch & Bound2, Temps de résolution programmation dynamique, Temps de résolution PLNE \n";
+    "Nombre de noeuds explorés Branch & Bound2, Temps de résolution PLNE \n";
 
-    int liste_des_N[] = {10,20,30,40,50,75,100,150,200,300,400,500,1000};
+    int liste_des_N[] = {40,50,75,100,150,200,300,400,500,1000};
     
     for(int i = 0; i < 13 ;i++){
         int N = liste_des_N[i];
@@ -108,38 +108,31 @@ int main(){
         double valeur_best_approx = min(valeur_solution(N, solution_deux_opt1, matrice), valeur_solution(N, solution_deux_opt2, matrice));
         valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
         
-        
-        PE.start();
-        tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
-        PE.stop();
-        double s1 = get<0>(couple);
-        int nb_noeuds = get<1>(couple);
-        double d2 = PE.seconds();
-        cout << d2 << "s, "<<nb_noeuds<<" noeuds ";
-        PE.clear();
-        
+        double s1, d2, s2, d3;
+        int nb_noeuds, nb_noeuds2;
 
         PE.start();
         tuple<double, int> couple2 = lance_profondeur3(N, matrice, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
         PE.stop();
-        int nb_noeuds2 = get<1>(couple2);
-        double s2 = get<0>(couple2);
-        double d3 = PE.seconds();
+        nb_noeuds2 = get<1>(couple2);
+        s2 = get<0>(couple2);
+        d3 = PE.seconds();
         cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds ";
         PE.clear();
-        
-        
+
+
         PE.start();
-        vector<vector<int>> state(N);
-        for(auto & neighbors : state)
-            neighbors = vector<int>((1 << N) - 1, 100000);
-        double h_k = held_karp(N, matrice, 0,1, state, std::chrono::high_resolution_clock::now(), TIMEOUT);
+        cout << "Start" << endl;
+        tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
+        cout << "Finished" << endl;
         PE.stop();
-        double d4 = PE.seconds();
-        cout << " " << d4 <<"s, "<< endl;
+        s1 = get<0>(couple);
+        nb_noeuds = get<1>(couple);
+        d2 = PE.seconds();
+        cout << d2 << "s, "<<nb_noeuds<<" noeuds " << endl;
         PE.clear();
 
-            if(false){
+            if(d2 > 100){
                 
                 for(Arete *a : aretes){
                     a->afficher();
@@ -150,7 +143,7 @@ int main(){
             else{
                 my_file_approx<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
                 my_file_exacte <<N << "," << d2<< ","<<nb_noeuds<<",";
-                my_file_exacte << d3 <<","<<nb_noeuds2<<","<<d4<<",\n";
+                my_file_exacte << d3 <<","<<nb_noeuds2<<",\n";
             }
         }
         delete[] aretes2;
