@@ -77,7 +77,7 @@ int main(){
 */
 
     int i=0;
-    int N=14;
+    int N=15;
     int m = N*(N-1)/2;
     double TIMEOUT = 6000000;
     ofstream my_file_approx, my_file_exacte, instances;
@@ -120,7 +120,6 @@ int main(){
         valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
         
         
-
         //SOLUTIONS EXACTES
         PE.start();
         double backtrck = backtracking(N, aretes);

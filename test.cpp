@@ -92,6 +92,27 @@ int main(){
         double* matrice = matrice_distance(N, aretes);
 
         double TIMEOUT = 50;
+
+        // SOLUTIONS APPROCHEES
+        double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
+        
+        int* solution_gloutonne = glouton2(N, matrice);
+        double g2 = valeur_solution(N, solution_gloutonne, matrice);
+
+        double approx1 = deux_approx(N, aretes);
+
+        int* solution_christofides = christofides(N, aretes);
+        double approx2 = valeur_solution(N, solution_christofides, matrice);
+
+        int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
+        
+
+        int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
+        int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
+        int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
+
+        double valeur_best_approx = min(valeur_solution(N, solution_deux_opt1, matrice), valeur_solution(N, solution_deux_opt2, matrice));
+        valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
         
         double s1, d2, s2, d3;
         int nb_noeuds, nb_noeuds2;
@@ -107,9 +128,16 @@ int main(){
 
 
         PE.start();
-        cout << "Start" << endl;
         tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT);
-        cout << "Finished" << endl;
+        PE.stop();
+        s1 = get<0>(couple);
+        nb_noeuds = get<1>(couple);
+        d2 = PE.seconds();
+        cout << d2 << "s, "<<nb_noeuds<<" noeuds " << endl;
+        PE.clear();
+
+        PE.start();
+        couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
         PE.stop();
         s1 = get<0>(couple);
         nb_noeuds = get<1>(couple);
@@ -120,5 +148,4 @@ int main(){
     // Close the file
     cout <<s1 << endl;
     fin.close();
-    cout << "Hello ???" << endl;
 }

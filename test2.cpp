@@ -44,25 +44,22 @@ double (*distance)(int, int, int, int)){
     return aretes;
 }
 
-
 int main(){
-    vector<Arete*> aretes = genere_instances(12, 100, 100, distance_de_manhattan);
-    double* matrice = matrice_distance(12, aretes);
-    vector<Noeud2> noeuds;
-    Noeud2::N = 12;
-    Noeud2::m = 6*11;
-    Noeud2::distances = matrice;
-    for(int i = 0; i < 10000000; i++){
-        Noeud2 n;
-        noeuds.push_back(n);
+    srand(time(NULL));
+    unordered_set<string> set;
+    for(int i=0;i<20000000;i++){
+        string hashcode = string(190, '0');
+        int a = i;
+        int k=0;
+        while(a>0){
+            a%2==0 ? hashcode[k] = '0' : hashcode[k] = '1';
+            k++;
+            a/=2;
+        }
+        set.insert(hashcode);
+        cout << set.size() << endl;
     }
-    int x;
-    cin >> x;
-
-    for(int i = 0; i < 10000000; i++){
-        noeuds.at(i).destructeur();
-    }
-    cin >> x;
+    
 
 }
     

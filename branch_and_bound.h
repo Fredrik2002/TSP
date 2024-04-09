@@ -93,7 +93,6 @@ class Noeud{
     }
 
     Noeud(Noeud &n, int a){
-        nb_noeuds_crees++;
         solution_realisable=false;
         degres = new int[N]();
         solution = new int[N];
@@ -104,6 +103,7 @@ class Noeud{
         if(set.find(hashcode)==set.end()){
             evalue();
             set.insert(hashcode); 
+            nb_noeuds_crees++;
         } 
         else {
             evaluation = 1000000000;
@@ -207,27 +207,23 @@ void insertion_dichotomique(vector<Noeud> &liste, Noeud &n){
     liste.insert(it, n);
 }
 
-void branch_and_bound_profondeur(Noeud* &n, int N, Arete* &aretes, double &borne_sup, int &nb_noeuds_explores,
+void branch_and_bound_profondeur(Noeud* &n, int N, Arete* &aretes, double &borne_sup,
 std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double timeout){
     vector<int> branchement = sommet_a_separer(N, *n);
     for(int a : branchement){
         Noeud* n_fils = new Noeud(*n, a);
-        nb_noeuds_explores++;
         if(n_fils->solution[N-3]!=-1 && n_fils->evaluation<borne_sup){
             
             if(n_fils->solution_realisable){
                 borne_sup=n_fils->evaluation;
             }
             else{
-                branch_and_bound_profondeur(n_fils, N, aretes, borne_sup, nb_noeuds_explores, temps_depart, timeout);
+                branch_and_bound_profondeur(n_fils, N, aretes, borne_sup, temps_depart, timeout);
             }
         }
         delete n_fils;
         if(std::chrono::duration<double>(std::chrono::high_resolution_clock::now()-temps_depart).count()>timeout){
-            nb_noeuds_explores = -1;
             borne_sup = -1;
-            cout << "Triggered" << endl;
-            cout << n_fils->hashcode << endl;
             return;
         }
     }
@@ -250,8 +246,8 @@ std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double
     }
     Noeud* n = new Noeud(aretes, N, best_x0);
     if(n->solution_realisable) borne_sup=n->evaluation;
-    branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores, temps_depart, timeout);
-    cout << "Noeuds crées :" << n->nb_noeuds_crees << ", Noeuds détruits : " << n->nb_noeuds_detruits << endl;
+    branch_and_bound_profondeur(n, N, aretes, borne_sup, temps_depart, timeout);
+    borne_sup==-1 ? nb_noeuds_explores=-1 :nb_noeuds_explores = n->nb_noeuds_crees; 
     delete n;
     return make_tuple(borne_sup, nb_noeuds_explores);
 }

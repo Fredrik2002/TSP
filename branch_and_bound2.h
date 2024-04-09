@@ -47,6 +47,7 @@ class Noeud2{
         static int* two_lightest;
         static int N;// Nombre de sommets
         static int m;// Nombre d'aretes
+
         int p;
         int* solution;
         int* sommets_places; // liste des sommets
