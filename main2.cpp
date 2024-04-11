@@ -67,11 +67,11 @@ int main(){
     my_file_approx.open("main2/datas_approx.csv");
     my_file_exacte.open("main2/datas_exacte.csv");
     my_file_approx << "N, Solution exacte, Solution Gloutonne 1, Solution Gloutonne 2, Solution 2-Approximation, Solution 3/2-Approximation, Solution 2-OPT \n";
-    my_file_exacte << "N, Temps de résolution Branch & Bound1 (Orienté arête),"
-    "Nombre de noeuds explorés Branch & Bound1, Temps de résolution Branch & Bound2 (Orienté sommet),"
+    my_file_exacte << "N,"
+    "Temps de résolution Branch & Bound2 (Orienté sommet),"
     "Nombre de noeuds explorés Branch & Bound2, Temps de résolution PLNE \n";
 
-    int liste_des_N[] = {40,50,75,100,150,200,300,400,500,1000};
+    int liste_des_N[] = {10,20,30,40,50,75,100,150,200,300,400,500,1000};
     
     for(int i = 0; i < 13 ;i++){
         int N = liste_des_N[i];
@@ -117,32 +117,19 @@ int main(){
         nb_noeuds2 = get<1>(couple2);
         s2 = get<0>(couple2);
         d3 = PE.seconds();
-        cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds ";
+        cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds " << endl;
         PE.clear();
 
-
-        PE.start();
-        cout << "Start" << endl;
-        tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
-        cout << "Finished" << endl;
-        PE.stop();
-        s1 = get<0>(couple);
-        nb_noeuds = get<1>(couple);
-        d2 = PE.seconds();
-        cout << d2 << "s, "<<nb_noeuds<<" noeuds " << endl;
-        PE.clear();
-
-            if(d2 > 100){
+            if(false){
                 
                 for(Arete *a : aretes){
                     a->afficher();
                 }
-                cout << "Branch & Bound1 :" << s1 <<endl;
                 cout << "Branch & Bound 2 :" << s2<<endl;
             }
             else{
                 my_file_approx<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
-                my_file_exacte <<N << "," << d2<< ","<<nb_noeuds<<",";
+                my_file_exacte <<N << ",";
                 my_file_exacte << d3 <<","<<nb_noeuds2<<",\n";
             }
         }
