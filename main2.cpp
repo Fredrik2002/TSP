@@ -71,7 +71,7 @@ int main(){
     "Nombre de noeuds explorés Branch & Bound1, Temps de résolution Branch & Bound2 (Orienté sommet),"
     "Nombre de noeuds explorés Branch & Bound2, Temps de résolution PLNE \n";
 
-    int liste_des_N[] = {40,50,75,100,150,200,300,400,500,1000};
+    int liste_des_N[] = {40,50,75,100,150,200,300,400,500,1000, 2000, 5000, 10000};
     
     for(int i = 0; i < 13 ;i++){
         int N = liste_des_N[i];
