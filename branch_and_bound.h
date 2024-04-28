@@ -61,9 +61,9 @@ class Noeud{
         static unordered_set<string> set; 
         static int x0;
         static int N, m; // Nombre de sommets, Nombre d'aretes
-        static int nb_noeuds_crees, nb_noeuds_detruits;
+        static int nb_noeuds_crees;
+        static Arete* aretes; // Listes des arêtes disponibles (Redondant)
 
-        Arete* aretes; // Listes des arêtes disponibles (Redondant)
         int* solution; // ACPM
         int* degres; // Tableau des degrés de chaque sommets
         bool solution_realisable;
@@ -76,10 +76,11 @@ class Noeud{
         unordered_set<string> s;
         set = s;
         aretes=ar;
-        nb_noeuds_crees++;
-        solution_realisable=false;
+        nb_noeuds_crees=1;
         N = NB_SOMMETS;
         m=N*(N-1)/2;
+        
+        solution_realisable=false;
         degres = new int[N]();
         solution = new int[N];
         x0 = x;
@@ -89,8 +90,6 @@ class Noeud{
     }
 
     Noeud(Noeud &n, int a){
-        aretes=n.aretes;
-        nb_noeuds_crees++;
         solution_realisable=false;
         degres = new int[N]();
         solution = new int[N];
@@ -99,6 +98,7 @@ class Noeud{
         evaluation = 0;
         hashcode[a]='1';
         if(set.find(hashcode)==set.end()){
+            nb_noeuds_crees++;
             evalue();
             set.insert(hashcode); 
         } 
@@ -108,7 +108,6 @@ class Noeud{
     }
 
     ~Noeud(){
-        nb_noeuds_detruits++;
         delete[] degres;
         delete[] solution;
     }
@@ -185,54 +184,39 @@ class Noeud{
 };
 
 
-vector<int> sommet_a_separer(int N, Noeud &n){//Renvoie les arêtes à retirer 
+vector<int> sommet_a_separer(Noeud* &n){//Renvoie les arêtes à retirer 
     //(Les arêtes ont toutes un sommet en commun)
     // STRATEGIE DE SEPARATION : A ETUDIER (On prend le sommet de plus haut degré pour l'instant)
     
-    int sommet = n.sommet_degre_max;
+    int sommet = n->sommet_degre_max;
     vector<int> aretes_a_brancher;
-    for(int i=0;i<N;i++){
-        Arete a = n.aretes[n.solution[i]];
-        if (a.sommet1==sommet || a.sommet2 == sommet) aretes_a_brancher.push_back(n.solution[i]);
+    for(int i=0;i<n->N;i++){
+        Arete a = n->aretes[n->solution[i]];
+        if (a.sommet1==sommet || a.sommet2 == sommet) aretes_a_brancher.push_back(n->solution[i]);
     }
     return aretes_a_brancher;
 }
 
-void insertion_dichotomique(vector<Noeud> &liste, Noeud &n){
-    auto it = lower_bound(liste.begin(), liste.end(), n);
-    liste.insert(it, n);
-}
 
-void branch_and_bound_profondeur(Noeud* &n, int N, Arete* &aretes, double &borne_sup, int &nb_noeuds_explores,
-std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double timeout){
-    vector<int> branchement = sommet_a_separer(N, *n);
+void branch_and_bound_profondeur(Noeud* &n, double &borne_sup){
+    vector<int> branchement = sommet_a_separer(n);
     for(int a : branchement){
         Noeud* n_fils = new Noeud(*n, a);
-        nb_noeuds_explores++;
-        if(n_fils->solution[N-3]!=-1 && n_fils->evaluation<borne_sup){
+        if(n_fils->solution[n->N-3]!=-1 && n_fils->evaluation<borne_sup){
             
             if(n_fils->solution_realisable){
                 borne_sup=n_fils->evaluation;
             }
             else{
-                branch_and_bound_profondeur(n_fils, N, aretes, borne_sup, nb_noeuds_explores, temps_depart, timeout);
+                branch_and_bound_profondeur(n_fils, borne_sup);
             }
         }
         delete n_fils;
-        if(std::chrono::duration<double>(std::chrono::high_resolution_clock::now()-temps_depart).count()>timeout){
-            nb_noeuds_explores = -1;
-            borne_sup = -1;
-            cout << "Triggered" << endl;
-            cout << n_fils->hashcode << endl;
-            return;
-        }
     }
 }
 
-tuple<double, int> lance_profondeur(int N, Arete* &aretes, 
-std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double timeout=100000, double borne_sup=13245678){
+tuple<double, int> lance_profondeur(int N, Arete* &aretes, double borne_sup=13245678){
     tuple<double, int> to_return;
-    int nb_noeuds_explores = 0;
     borne_sup+=0.0001;
     int best_x0 = 0;
     double best_sol = 0;
@@ -246,19 +230,20 @@ std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double
     }
     Noeud* n = new Noeud(aretes, N, best_x0);
     if(n->solution_realisable) borne_sup=n->evaluation;
-    branch_and_bound_profondeur(n, N, aretes, borne_sup, nb_noeuds_explores, temps_depart, timeout);
-    cout << "Noeuds crées :" << n->nb_noeuds_crees << ", Noeuds détruits : " << n->nb_noeuds_detruits << endl;
+    branch_and_bound_profondeur(n, borne_sup);
     delete n;
-    return make_tuple(borne_sup, nb_noeuds_explores);
+    return make_tuple(borne_sup, n->nb_noeuds_crees);
 }
 
 unordered_set<string> set2;
+Arete* a;
+
+Arete* Noeud::aretes = a;
 unordered_set<string> Noeud::set = set2;
 int Noeud::N = 0;
 int Noeud::m = 0;
 int Noeud::x0 = 0;
 int Noeud::nb_noeuds_crees = 0;
-int Noeud::nb_noeuds_detruits = 0;
 
 
 

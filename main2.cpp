@@ -29,8 +29,6 @@ double distance_euclidienne(int xi, int xj, int yi, int yj){
 
 vector<Arete*> genere_instances(int N, int x_max, int y_max, 
 double (*distance)(int, int, int, int)){ 
-    ofstream instances;
-    instances.open("main2/instances/"+to_string(N)+".txt", ios::app);
     int* X = new int[N];
     int* Y = new int[N];
     for(int i=0;i<N;i++){
@@ -47,29 +45,20 @@ double (*distance)(int, int, int, int)){
                 aretes.push_back(a);
                 p++;
             }
-            instances << distance(X[i], X[j], Y[i], Y[j]) << " ";
         }
-        instances << endl;
     }
-    instances << endl;
-    instances.close();
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
     return aretes;
 }
 
 int main(){
     srand(time(NULL));
-    double TIMEOUT = 60;
     EvalPerf PE;
     
-    ofstream my_file_approx, my_file_exacte, instances;
+    ofstream my_file_approx;
 
     my_file_approx.open("main2/datas_approx.csv");
-    my_file_exacte.open("main2/datas_exacte.csv");
     my_file_approx << "N, Solution exacte, Solution Gloutonne 1, Solution Gloutonne 2, Solution 2-Approximation, Solution 3/2-Approximation, Solution 2-OPT \n";
-    my_file_exacte << "N, Temps de résolution Branch & Bound1 (Orienté arête),"
-    "Nombre de noeuds explorés Branch & Bound1, Temps de résolution Branch & Bound2 (Orienté sommet),"
-    "Nombre de noeuds explorés Branch & Bound2, Temps de résolution PLNE \n";
 
     int liste_des_N[] = {40,50,75,100,150,200,300,400,500,1000, 2000, 5000, 10000};
     
@@ -108,49 +97,14 @@ int main(){
         double valeur_best_approx = min(valeur_solution(N, solution_deux_opt1, matrice), valeur_solution(N, solution_deux_opt2, matrice));
         valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
         
-        double s1, d2, s2, d3;
-        int nb_noeuds, nb_noeuds2;
 
-        PE.start();
-        tuple<double, int> couple2 = lance_profondeur3(N, matrice, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
-        PE.stop();
-        nb_noeuds2 = get<1>(couple2);
-        s2 = get<0>(couple2);
-        d3 = PE.seconds();
-        cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds ";
-        PE.clear();
-
-
-        PE.start();
-        cout << "Start" << endl;
-        tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
-        cout << "Finished" << endl;
-        PE.stop();
-        s1 = get<0>(couple);
-        nb_noeuds = get<1>(couple);
-        d2 = PE.seconds();
-        cout << d2 << "s, "<<nb_noeuds<<" noeuds " << endl;
-        PE.clear();
-
-            if(d2 > 100){
-                
-                for(Arete *a : aretes){
-                    a->afficher();
-                }
-                cout << "Branch & Bound1 :" << s1 <<endl;
-                cout << "Branch & Bound 2 :" << s2<<endl;
-            }
-            else{
-                my_file_approx<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
-                my_file_exacte <<N << "," << d2<< ","<<nb_noeuds<<",";
-                my_file_exacte << d3 <<","<<nb_noeuds2<<",\n";
-            }
+        my_file_approx<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
+            
         }
         delete[] aretes2;
         cout << "Termine pour N=" << N << endl;
     }
     
     my_file_approx.close();
-    my_file_exacte.close();
     cout << "Exited successfully" << endl;
 }

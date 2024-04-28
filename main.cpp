@@ -130,7 +130,7 @@ int main(){
         PE.clear();
         
         PE.start();
-        tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
+        tuple<double, int> couple= lance_profondeur(N, aretes2, valeur_best_approx);
         PE.stop();
         double s1 = get<0>(couple);
         int nb_noeuds = get<1>(couple);
