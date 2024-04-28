@@ -73,6 +73,7 @@ class Noeud{
         
 
     Noeud(Arete* &ar,  int NB_SOMMETS, int x){
+        //Static
         unordered_set<string> s;
         set = s;
         aretes=ar;
@@ -82,8 +83,8 @@ class Noeud{
         
         solution_realisable=false;
         degres = new int[N]();
-        solution = new int[N];
-        x0 = x;
+        solution = new int[N]();
+        evaluation = 0;
         solution[N-3] = -1;
         hashcode = string(m, '0');
         evalue();
@@ -101,9 +102,11 @@ class Noeud{
             nb_noeuds_crees++;
             evalue();
             set.insert(hashcode); 
+            nb_noeuds_crees++;
         } 
         else {
             evaluation = 1000000000;
+            sommet_degre_max = -1;
         }
     }
 
@@ -236,6 +239,9 @@ tuple<double, int> lance_profondeur(int N, Arete* &aretes, double borne_sup=1324
 }
 
 unordered_set<string> set2;
+Arete* a;
+
+Arete* Noeud::aretes = a;
 Arete* a;
 
 Arete* Noeud::aretes = a;
