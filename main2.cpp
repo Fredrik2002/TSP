@@ -59,12 +59,6 @@ int main(){
 
     my_file_approx.open("main2/datas_approx.csv");
     my_file_approx << "N, Solution exacte, Solution Gloutonne 1, Solution Gloutonne 2, Solution 2-Approximation, Solution 3/2-Approximation, Solution 2-OPT \n";
-<<<<<<< HEAD
-=======
-    my_file_exacte << "N,"
-    "Temps de résolution Branch & Bound2 (Orienté sommet),"
-    "Nombre de noeuds explorés Branch & Bound2, Temps de résolution PLNE \n";
->>>>>>> 93ff1ab818a40e7983870c9b1af3a2a4111e8ea1
 
     int liste_des_N[] = {40,50,75,100,150,200,300,400,500,1000, 2000, 5000, 10000};
     
@@ -104,32 +98,8 @@ int main(){
         valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
         
 
-<<<<<<< HEAD
         my_file_approx<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
             
-=======
-        PE.start();
-        tuple<double, int> couple2 = lance_profondeur3(N, matrice, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
-        PE.stop();
-        nb_noeuds2 = get<1>(couple2);
-        s2 = get<0>(couple2);
-        d3 = PE.seconds();
-        cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds " << endl;
-        PE.clear();
-
-            if(false){
-                
-                for(Arete *a : aretes){
-                    a->afficher();
-                }
-                cout << "Branch & Bound 2 :" << s2<<endl;
-            }
-            else{
-                my_file_approx<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
-                my_file_exacte <<N << ",";
-                my_file_exacte << d3 <<","<<nb_noeuds2<<",\n";
-            }
->>>>>>> 93ff1ab818a40e7983870c9b1af3a2a4111e8ea1
         }
         delete[] aretes2;
         cout << "Termine pour N=" << N << endl;

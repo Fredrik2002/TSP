@@ -242,9 +242,6 @@ unordered_set<string> set2;
 Arete* a;
 
 Arete* Noeud::aretes = a;
-Arete* a;
-
-Arete* Noeud::aretes = a;
 unordered_set<string> Noeud::set = set2;
 int Noeud::N = 0;
 int Noeud::m = 0;
