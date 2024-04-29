@@ -14,6 +14,7 @@
 #include "held-karp.h"
 #include "EvalPerf.h"
 #include "2-opt.h"
+#include "arete.h"
 
 using namespace std;
 
@@ -79,7 +80,6 @@ int main(){
     int i=0;
     int N=15;
     int m = N*(N-1)/2;
-    double TIMEOUT = 6000000;
     ofstream my_file_approx, my_file_exacte, instances;
     my_file_approx.open("main1/datas_approx.csv");
     my_file_exacte.open("main1/datas_exacte.csv");
@@ -139,7 +139,7 @@ int main(){
         
 
         PE.start();
-        tuple<double, int> couple2 = lance_profondeur3(N, matrice, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
+        tuple<double, int> couple2 = lance_profondeur3(N, matrice, valeur_best_approx);
         PE.stop();
         int nb_noeuds2 = get<1>(couple2);
         double s2 = get<0>(couple2);
@@ -152,7 +152,7 @@ int main(){
         vector<vector<int>> state(N);
         for(auto & neighbors : state)
             neighbors = vector<int>((1 << N) - 1, 100000);
-        double h_k = held_karp(N, matrice, 0,1, state, std::chrono::high_resolution_clock::now(), TIMEOUT);
+        double h_k = held_karp(N, matrice, 0,1, state);
         PE.stop();
         double d4 = PE.seconds();
         cout << " " << d4 <<"s, "<< endl;

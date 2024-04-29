@@ -48,6 +48,7 @@ double (*distance)(int, int, int, int)){
         }
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
+    delete[] X, Y;
     return aretes;
 }
 
@@ -60,16 +61,16 @@ int main(){
     my_file_approx.open("main2/datas_approx.csv");
     my_file_approx << "N, Solution exacte, Solution Gloutonne 1, Solution Gloutonne 2, Solution 2-Approximation, Solution 3/2-Approximation, Solution 2-OPT \n";
 
-    int liste_des_N[] = {40,50,75,100,150,200,300,400,500,1000, 2000, 5000, 10000};
+    int liste_des_N[] = {10,20,30,40,50,75,100,150,200,300,400,500,750,1000};
     
-    for(int i = 0; i < 13 ;i++){
+    for(int i = 0; i < 14 ;i++){
         int N = liste_des_N[i];
         int m = N*(N-1)/2;
         Noeud2::N = N;
         Noeud2::m = m;
         Arete* aretes2 = new Arete[m];
-        for(int j=0;j<10;j++){
-            cout << N << " " << i << " " << j << " ";
+        for(int j=0;j<100;j++){
+            cout << j << endl;
             vector<Arete*> aretes = genere_instances(N, 10000, 10000, distance_de_manhattan);
             double* matrice = matrice_distance(N, aretes);
             Noeud2::distances = matrice;
@@ -82,7 +83,8 @@ int main(){
         int* solution_gloutonne = glouton2(N, matrice);
         double g2 = valeur_solution(N, solution_gloutonne, matrice);
 
-        double approx1 = deux_approx(N, aretes);
+        int* solution_approx1 = deux_approx(N, aretes);
+        double approx1 = valeur_solution(N, solution_approx1, matrice);
 
         int* solution_christofides = christofides(N, aretes);
         double approx2 = valeur_solution(N, solution_christofides, matrice);
@@ -90,15 +92,18 @@ int main(){
         int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
         
 
-        int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
+        //int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
         int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
         int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
 
-        double valeur_best_approx = min(valeur_solution(N, solution_deux_opt1, matrice), valeur_solution(N, solution_deux_opt2, matrice));
-        valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
+        double valeur_best_approx = min(valeur_solution(N, solution_deux_opt3, matrice), valeur_solution(N, solution_deux_opt2, matrice));
+        //valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
         
 
-        my_file_approx<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
+        my_file_approx<<N<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
+
+        delete[] solution_gloutonne, solution_approx1, 
+        solution_christofides, best_approx, solution_deux_opt2,solution_deux_opt3;
             
         }
         delete[] aretes2;

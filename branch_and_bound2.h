@@ -8,7 +8,6 @@
 #include <bits/stdc++.h>
 #include <string>
 #include <tuple>
-#include "backtracking.h"
 
 using namespace std;
 
@@ -47,6 +46,7 @@ class Noeud2{
         static int* two_lightest;
         static int N;// Nombre de sommets
         static int m;// Nombre d'aretes
+        static int nb_noeuds_explores;
 
         int p;
         int* solution;
@@ -56,10 +56,12 @@ class Noeud2{
         double sommet_actuel;
 
     Noeud2(int NB_SOMMETS, double* d){
+        //Static
         N = NB_SOMMETS;
         m = N*(N-1)/2;
         two_lightest = lightest_two_weights(N, d);
         distances = d;
+        nb_noeuds_explores = 1;
 
         solution_realisable = false;
         p = 0;
@@ -77,6 +79,7 @@ class Noeud2{
 
     Noeud2(Noeud2 &n, int a){
         solution_realisable = false;
+        nb_noeuds_explores++;
         p = n.p+1;
         evaluation = n.evaluation;
         sommet_actuel = n.sommet_actuel;
@@ -161,71 +164,27 @@ class Noeud2{
     }
 };
 
-
-bool comparateur_pointeur_noeud(const Noeud2* a, const Noeud2* b){
-    return a->evaluation < b-> evaluation;
-}
-
-void branch_and_bound2(Noeud2* &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores){
-    vector<Noeud2*> liste_noeuds;
-    for(int i=0;i<N;i++){
+void branch_and_bound3(Noeud2* &n, double &borne_sup){
+    for(int i=0;i<n->N;i++){
         if(n->sommets_places[i]==-1 && !(n->sommets_places[1]==-1 && i==2)){
             Noeud2* n_fils = new Noeud2(*n, i);
-            nb_noeuds_explores++;
-            if(n_fils->evaluation < borne_sup){
-                if(n_fils->solution_realisable){
-                    borne_sup=n_fils->evaluation;
-                }
-                auto it = lower_bound(liste_noeuds.begin(), liste_noeuds.end(), n_fils, comparateur_pointeur_noeud);
-                liste_noeuds.insert(it, n_fils);
-            }
-            else {delete n_fils;}
-        }
-    }
-    for(int i=0;i<liste_noeuds.size();i++){
-        branch_and_bound2(liste_noeuds.at(i), N, distances, borne_sup, nb_noeuds_explores);
-        delete liste_noeuds.at(i);
-    } 
-}
-
-tuple<double, int> lance_profondeur2(int N, double* &distances, double borne_sup=123456798){
-    int nb_noeuds_explores = 1;
-    Noeud2* n = new Noeud2(N, distances);
-    branch_and_bound2(n, N, distances, borne_sup, nb_noeuds_explores);
-    delete n;
-    return make_tuple(borne_sup, nb_noeuds_explores);
-}
-
-void branch_and_bound3(Noeud2* &n, int &N, double* &distances, double &borne_sup, int &nb_noeuds_explores,
-std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart, double timeout){
-    vector<Noeud2> liste_noeuds;
-    for(int i=0;i<N;i++){
-        if(n->sommets_places[i]==-1 && !(n->sommets_places[1]==-1 && i==2)){
-            Noeud2* n_fils = new Noeud2(*n, i);
-            nb_noeuds_explores++;
             if(n_fils->evaluation < borne_sup){
                 if(n_fils->solution_realisable){
                     borne_sup=n_fils->evaluation;
                 }
                 else{
-                    branch_and_bound3(n_fils, N, distances, borne_sup, nb_noeuds_explores, temps_depart, timeout);
+                    branch_and_bound3(n_fils, borne_sup);
                 }
             }
             delete n_fils;
-            if(std::chrono::duration<double>(std::chrono::high_resolution_clock::now()-temps_depart).count()>timeout){
-                nb_noeuds_explores = -1;
-                borne_sup = -1;
-                return;
-            }
         }
     }
 }
 
-tuple<double, int> lance_profondeur3(int N, double* &distances, 
-std::chrono::time_point<std::chrono::high_resolution_clock> temps_depart,double timeout=100000,double borne_sup=123456798){
-    int nb_noeuds_explores = 1;
+tuple<double, int> lance_profondeur3(int N, double* &distances, double borne_sup=123456798){
     Noeud2* n = new Noeud2(N, distances);
-    branch_and_bound3(n, N, distances, borne_sup, nb_noeuds_explores, temps_depart, timeout);
+    branch_and_bound3(n, borne_sup);
+    int nb_noeuds_explores = n->nb_noeuds_explores;
     delete n;
     return make_tuple(borne_sup, nb_noeuds_explores);
 }
@@ -234,5 +193,6 @@ double* Noeud2::distances = nullptr;
 int* Noeud2::two_lightest = nullptr;
 int Noeud2::N = 0;
 int Noeud2::m = 0;
+int Noeud2::nb_noeuds_explores = 0;
 
 #endif

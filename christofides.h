@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include "branch_and_bound.h"
+#include "arete.h"
 #include "2-approx.h"
 #include <bits/stdc++.h>
 #include "backtracking.h"
@@ -25,6 +25,7 @@ vector<int>* sommet_impairs(int N, vector<Arete*> &ACPM){
     for(int i=0;i<N;i++){
         if(degres[i]%2==1) sommets->push_back(i);
     }
+    delete degres;
     return sommets;
 }
 
@@ -48,65 +49,6 @@ vector<Arete*> * couplage_parfait(int N, vector<int> &sommets, double* distances
     return aretes_du_matching; 
 }
 
-int sommet_a_utiliser(vector<Arete*> &ACPM, vector<int> &circuit){
-    for(int i=0;i<circuit.size();i++){
-        int s = circuit.at(i);
-        for(Arete *a : ACPM){
-            if(a->sommet1 ==s || a->sommet2 == s) return s;
-        }
-    }
-    return -1;
-}
-
-vector<int> circuit_eulerien(vector<Arete*> &ACPM){
-    vector<int> circuit, boucle;
-    boucle.push_back(ACPM.at(0)->sommet1);
-    int sommet_actuel = ACPM.at(0)->sommet1;
-    while(true){
-        if(sommet_actuel==boucle.at(0) && boucle.size()>1){
-            auto it = find(circuit.begin(), circuit.end(), boucle.at(0));
-            if(it==circuit.end()) circuit.insert(circuit.begin(), boucle.begin(), boucle.end());
-            else circuit.insert(it, boucle.begin(), boucle.end()-1);
-            if(ACPM.size()==0) break;
-            sommet_actuel = sommet_a_utiliser(ACPM, circuit);
-            boucle.clear();
-            boucle.push_back(sommet_actuel);
-            continue;
-        }
-        for(int i=0;i<ACPM.size();i++){
-            if(ACPM.at(i)->sommet1==sommet_actuel){
-                boucle.push_back(ACPM.at(i)->sommet2);
-                sommet_actuel=ACPM.at(i)->sommet2;
-                ACPM.erase(ACPM.begin()+i);
-                break;
-            }
-
-            if(ACPM.at(i)->sommet2==sommet_actuel){
-                boucle.push_back(ACPM.at(i)->sommet1);
-                sommet_actuel=ACPM.at(i)->sommet1;
-                ACPM.erase(ACPM.begin()+i);
-                break;
-            }
-        }
-    }
-    return circuit;
-}
-
-void shortcut(int N, vector<int> &circuit){
-    unordered_set<int> sommets_explores;
-    int i=0;
-    while(sommets_explores.size()!=N){
-        if(sommets_explores.find(circuit.at(i))==sommets_explores.end()){
-            sommets_explores.insert(circuit.at(i));
-            i++;
-        }
-        else{
-            circuit.erase(circuit.begin()+i);
-        }
-    }
-    circuit.erase(circuit.begin()+N, circuit.end()-1);
-}
-
 int* christofides(int N, vector<Arete*> &aretes){
     double* distances = matrice_distance(N, aretes);
     vector<Arete*> * solution = new vector<Arete*>();
@@ -123,6 +65,7 @@ int* christofides(int N, vector<Arete*> &aretes){
     for(int i=0;i<N+1;i++){
         sol[i] = circ.at(i);
     }
+    delete solution, sommets, matching;
     return sol;
 }
 

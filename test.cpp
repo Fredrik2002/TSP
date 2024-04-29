@@ -78,74 +78,44 @@ int main(){
         aretes.push_back(new Arete((int) H[0], (int) H[1], H[2], i/3-1)); 
     }
     sort(aretes.begin(), aretes.end(), comparateur_pointeur);
-    int N = 15;
+    int N = 20;
     int m = N*(N-1)/2;
     EvalPerf PE;
 
-        aretes = genere_instances(N, 10000, 10000, distance_de_manhattan);
-        Arete* aretes2 = new Arete[m];
-        int x0 = 0;
-        for(int i=0;i<m;i++){
-            aretes2[i] = *aretes.at(i);
-        }
+    aretes = genere_instances(N, 10000, 10000, distance_de_manhattan);
+    Arete* aretes2 = new Arete[m];
+    int x0 = 0;
+    for(int i=0;i<m;i++){
+        aretes2[i] = *aretes.at(i);
+        aretes2[i].afficher();
+    }
+    
+    double* matrice = matrice_distance(N, aretes);
+    // SOLUTIONS APPROCHEES
+    double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
+    
+    int* solution_gloutonne = glouton2(N, matrice);
+    double g2 = valeur_solution(N, solution_gloutonne, matrice);
+
+    int* solution_approx1 = deux_approx(N, aretes);
+    double approx1 = valeur_solution(N, solution_approx1, matrice);
+
+    int* solution_christofides = christofides(N, aretes);
+    double approx2 = valeur_solution(N, solution_christofides, matrice);
+
+    int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
+    
+
+    int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
+    int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
+    int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
+
+    double valeur_best_approx = min(valeur_solution(N, solution_deux_opt1, matrice), valeur_solution(N, solution_deux_opt2, matrice));
+    valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
         
-        double* matrice = matrice_distance(N, aretes);
 
-        double TIMEOUT = 50;
-
-        // SOLUTIONS APPROCHEES
-        double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
         
-        int* solution_gloutonne = glouton2(N, matrice);
-        double g2 = valeur_solution(N, solution_gloutonne, matrice);
-
-        double approx1 = deux_approx(N, aretes);
-
-        int* solution_christofides = christofides(N, aretes);
-        double approx2 = valeur_solution(N, solution_christofides, matrice);
-
-        int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
-        
-
-        int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
-        int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
-        int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
-
-        double valeur_best_approx = min(valeur_solution(N, solution_deux_opt1, matrice), valeur_solution(N, solution_deux_opt2, matrice));
-        valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
-        
-        double s1, d2, s2, d3;
-        int nb_noeuds, nb_noeuds2;
-
-        // PE.start();
-        // tuple<double, int> couple2 = lance_profondeur3(N, matrice, std::chrono::high_resolution_clock::now(), TIMEOUT);
-        // PE.stop();
-        // nb_noeuds2 = get<1>(couple2);
-        // s2 = get<0>(couple2);
-        // d3 = PE.seconds();
-        // cout <<d3 <<"s, "<<nb_noeuds2<<" noeuds ";
-        // PE.clear();
-
-
-        PE.start();
-        tuple<double, int> couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT);
-        PE.stop();
-        s1 = get<0>(couple);
-        nb_noeuds = get<1>(couple);
-        d2 = PE.seconds();
-        cout << d2 << "s, "<<nb_noeuds<<" noeuds " << endl;
-        PE.clear();
-
-        PE.start();
-        couple= lance_profondeur(N, aretes2, std::chrono::high_resolution_clock::now(), TIMEOUT, valeur_best_approx);
-        PE.stop();
-        s1 = get<0>(couple);
-        nb_noeuds = get<1>(couple);
-        d2 = PE.seconds();
-        cout << d2 << "s, "<<nb_noeuds<<" noeuds " << endl;
-        PE.clear();
     
     // Close the file
-    cout <<s1 << endl;
     fin.close();
 }
