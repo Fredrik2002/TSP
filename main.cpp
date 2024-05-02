@@ -92,7 +92,7 @@ int main(){
     my_file_exacte << N << "\n";
     Arete* aretes2 = new Arete[m];
     EvalPerf PE;
-    while(i<50){
+    while(i<100){
         vector<Arete*> aretes = genere_instances(N, 1000, 1000, distance_de_manhattan);
         double* matrice = matrice_distance(N, aretes);
         for(int j=0;j<m;j++){
@@ -104,7 +104,8 @@ int main(){
         int* solution_gloutonne = glouton2(N, matrice);
         double g2 = valeur_solution(N, solution_gloutonne, matrice);
 
-        double approx1 = deux_approx(N, aretes);
+        int* solution_deux_approx = deux_approx(N, aretes);
+        double approx1 = valeur_solution(N, solution_deux_approx, matrice);
 
         int* solution_christofides = christofides(N, aretes, matrice);
         double approx2 = valeur_solution(N, solution_christofides, matrice);
