@@ -86,7 +86,7 @@ int main(){
         int* solution_approx1 = deux_approx(N, aretes);
         double approx1 = valeur_solution(N, solution_approx1, matrice);
 
-        int* solution_christofides = christofides(N, aretes);
+        int* solution_christofides = christofides(N, aretes, matrice);
         double approx2 = valeur_solution(N, solution_christofides, matrice);
 
         int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
@@ -102,8 +102,7 @@ int main(){
 
         my_file_approx<<N<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
 
-        delete[] solution_gloutonne, solution_approx1, 
-        solution_christofides, best_approx, solution_deux_opt2,solution_deux_opt3;
+        delete[] solution_gloutonne, solution_approx1, solution_christofides, best_approx, solution_deux_opt2,solution_deux_opt3;
             
         }
         delete[] aretes2;

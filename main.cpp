@@ -106,7 +106,7 @@ int main(){
 
         double approx1 = deux_approx(N, aretes);
 
-        int* solution_christofides = christofides(N, aretes);
+        int* solution_christofides = christofides(N, aretes, matrice);
         double approx2 = valeur_solution(N, solution_christofides, matrice);
 
         int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;

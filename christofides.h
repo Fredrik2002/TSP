@@ -49,12 +49,9 @@ vector<Arete*> * couplage_parfait(int N, vector<int> &sommets, double* distances
     return aretes_du_matching; 
 }
 
-int* christofides(int N, vector<Arete*> &aretes){
-    double* distances = matrice_distance(N, aretes);
-    vector<Arete*> * solution = new vector<Arete*>();
+int* christofides(int N, vector<Arete*> &aretes, double* distances){
     vector<Arete*> ACPM = kruskal(N+1, aretes, -1);
-    vector<int>* sommets = new vector<int>();
-    sommets = sommet_impairs(N, ACPM);
+    vector<int>* sommets = sommet_impairs(N, ACPM);
     vector<Arete*>* matching = couplage_parfait(N, *sommets, distances);
     for(Arete* a: *matching){
         ACPM.push_back(a);
@@ -65,7 +62,7 @@ int* christofides(int N, vector<Arete*> &aretes){
     for(int i=0;i<N+1;i++){
         sol[i] = circ.at(i);
     }
-    delete solution, sommets, matching;
+    delete sommets, matching;
     return sol;
 }
 
