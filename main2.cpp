@@ -69,7 +69,6 @@ int main(){
         Noeud2::m = m;
         Arete* aretes2 = new Arete[m];
         for(int j=0;j<10;j++){
-            cout << N << " " << i << " " << j << " ";
             vector<Arete*> aretes = genere_instances(N, 10000, 10000, distance_de_manhattan);
             double* matrice = matrice_distance(N, aretes);
             Noeud2::distances = matrice;
@@ -77,25 +76,33 @@ int main(){
                 aretes2[k] = *(aretes.at(k));
             }
             // SOLUTIONS APPROCHEES
+        
         double g1 = valeur_solution(N, glouton1(N, matrice, 0), matrice);
+        cout << "g1 done ";
         
         int* solution_gloutonne = glouton2(N, matrice);
+        cout << "g2 done ";
         double g2 = valeur_solution(N, solution_gloutonne, matrice);
 
         double approx1 = deux_approx(N, aretes);
+        cout << "2-approx done ";
 
         int* solution_christofides = christofides(N, aretes);
+        cout << "christofides done ";
         double approx2 = valeur_solution(N, solution_christofides, matrice);
 
         int* best_approx = (g2<approx2) ? solution_gloutonne : solution_christofides;
         
 
-        int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
+        //int* solution_deux_opt1 = deux_opt1(N, best_approx, matrice);
+        cout << "deux opt 1 done ";
         int* solution_deux_opt2 = deux_opt2(N, best_approx, matrice);
+        cout << "deux opt 2 done ";
         int* solution_deux_opt3 = deux_opt3(N, best_approx, matrice);
+        cout << "deux opt 3 done " << endl;
 
-        double valeur_best_approx = min(valeur_solution(N, solution_deux_opt1, matrice), valeur_solution(N, solution_deux_opt2, matrice));
-        valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
+        double valeur_best_approx = min(valeur_solution(N, solution_deux_opt2, matrice), valeur_solution(N, solution_deux_opt3, matrice));
+        //valeur_best_approx = min(valeur_best_approx, valeur_solution(N, solution_deux_opt3, matrice));
         
 
         my_file_approx<<"," << g1 <<","<<g2<<","<< approx1<<","<<approx2<<","<<valeur_best_approx<<"\n";
