@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include "branch_and_bound.h"
+#include "arete.h"
 #include "backtracking.h"
 #include <bits/stdc++.h>
 
@@ -35,14 +35,20 @@ vector<Arete*> kruskal(int N, vector<Arete*> &aretes, int x0){//Prend en paramè
     else return solution_vide;
 }
 
-double deux_approx(int N, vector<Arete*> &aretes){
-    vector<Arete*> * solution = new vector<Arete*>();
+int* deux_approx(int N, vector<Arete*> &aretes){
+    vector<Arete*> solution;
     vector<Arete*> ACPM = kruskal(N+1, aretes, -1);
     for(Arete* a : ACPM){
-        solution->push_back(a);
-        solution->push_back(a);
+        solution.push_back(a);
+        solution.push_back(a);
     }
-    return valeur_solution(*solution);
+    vector<int> circ = circuit_eulerien(solution);
+    shortcut(N, circ);
+    int* sol = new int[N+1];
+    for(int i=0;i<N+1;i++){
+        sol[i] = circ.at(i);
+    }
+    return sol;
 }
 
 #endif

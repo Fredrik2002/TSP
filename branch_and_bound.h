@@ -8,6 +8,7 @@
 #include <bits/stdc++.h>
 #include <string>
 #include <tuple>
+#include "arete.h"
 
 using namespace std;
 
@@ -16,45 +17,6 @@ int trouver_racine(int sommet, int* parent){
     return trouver_racine(parent[sommet], parent);
 }
 
-int fonction_de_hachage(int a, int b, int N){
-    return -a*(a+3)/2+a*N+b-1;
-}
-
-
-class Arete{
-    public:
-    int sommet1, sommet2, id;
-    double poids;
-    Arete(){}
-    Arete(int s1, int s2, double p, int i){
-        sommet1 = s1;
-        sommet2 = s2;
-        poids = p;
-        id = i;
-    }
-
-    void afficher(){
-        cout << sommet1 << "," << sommet2 << ", " << poids << endl;
-    }
-
-    bool operator<(const Arete &autre){
-        return poids<autre.poids;
-    }
-
-    int hash(int N){
-        return fonction_de_hachage(sommet1, sommet2, N);
-    }
-};
-
-void affiche_liste(vector<Arete*> &liste){
-    for(Arete* a : liste){
-        a->afficher();
-    }
-}
-
-bool comparateur_pointeur(const Arete* a, const Arete* b){
-    return a->poids < b-> poids;
-}
 
 class Noeud{
     public:
