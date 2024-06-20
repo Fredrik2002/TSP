@@ -1,0 +1,10 @@
+.ipynb_checkpoints
+.vscode
+*.ipynb
+*.png
+*.zip
+*.csv
+*.txt
+*.py
+*.exe
+test*.cpp
